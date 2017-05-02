@@ -1,7 +1,6 @@
 package com.yaya.myvr.activity;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.TextView;
 
@@ -46,70 +45,74 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initFragment(savedInstanceState);
-    }
-
-    // 初始化Fragment
-    private void initFragment(Bundle savedInstanceState) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        currentId = R.id.tv_home;
-        if (savedInstanceState != null) {
-            currentId = savedInstanceState.getInt(CURRENT_ID);
-            homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag("home");
-            brandFragment = (BrandFragment) getSupportFragmentManager().findFragmentByTag("brand");
-            findFragment = (FindFragment) getSupportFragmentManager().findFragmentByTag("find");
-            mineFragment = (MineFragment) getSupportFragmentManager().findFragmentByTag("mine");
-        } else {
-            homeFragment = new HomeFragment();
-            brandFragment = new BrandFragment();
-            findFragment = new FindFragment();
-            mineFragment = new MineFragment();
-            transaction.add(R.id.fl_main, homeFragment, "home")
-                    .add(R.id.fl_main, brandFragment, "brand")
-                    .add(R.id.fl_main, findFragment, "find")
-                    .add(R.id.fl_main, mineFragment, "mine")
-                    .commit();
-        }
-        setBottomNavSelected(currentId);
-        switchFragmentTo(currentId);
+        selectTab(R.id.tv_home);
     }
 
     /**
-     * 切换Fragment
+     * 选中某个Tab
      *
      * @param id
      */
-    private void switchFragmentTo(int id) {
+    private void selectTab(int id) {
+        // 底部处理
+        setBottomNavSelected(id);
+        // Fragment处理
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        hideFragments(transaction);
         switch (id) {
             case R.id.tv_home:
-                transaction.show(homeFragment)
-                        .hide(brandFragment)
-                        .hide(findFragment)
-                        .hide(mineFragment)
-                        .commitAllowingStateLoss();
+                if (homeFragment == null) {
+                    homeFragment = new HomeFragment();
+                    transaction.add(R.id.fl_main, homeFragment);
+                } else {
+                    transaction.show(homeFragment);
+                }
                 break;
             case R.id.tv_brand:
-                transaction.show(brandFragment)
-                        .hide(homeFragment)
-                        .hide(findFragment)
-                        .hide(mineFragment)
-                        .commitAllowingStateLoss();
+                if (brandFragment == null) {
+                    brandFragment = new BrandFragment();
+                    transaction.add(R.id.fl_main, brandFragment);
+                } else {
+                    transaction.show(brandFragment);
+                }
                 break;
             case R.id.tv_find:
-                transaction.show(findFragment)
-                        .hide(homeFragment)
-                        .hide(brandFragment)
-                        .hide(mineFragment)
-                        .commitAllowingStateLoss();
+                if (findFragment == null) {
+                    findFragment = new FindFragment();
+                    transaction.add(R.id.fl_main, findFragment);
+                } else {
+                    transaction.show(findFragment);
+                }
                 break;
             case R.id.tv_mine:
-                transaction.show(mineFragment)
-                        .hide(homeFragment)
-                        .hide(brandFragment)
-                        .hide(findFragment)
-                        .commitAllowingStateLoss();
+                if (mineFragment == null) {
+                    mineFragment = new MineFragment();
+                    transaction.add(R.id.fl_main, mineFragment);
+                } else {
+                    transaction.show(mineFragment);
+                }
                 break;
+        }
+        transaction.commit();
+    }
+
+    /**
+     * 隐藏所有fragment
+     *
+     * @param transaction
+     */
+    private void hideFragments(FragmentTransaction transaction) {
+        if (homeFragment != null) {
+            transaction.hide(homeFragment);
+        }
+        if (brandFragment != null) {
+            transaction.hide(brandFragment);
+        }
+        if (findFragment != null) {
+            transaction.hide(findFragment);
+        }
+        if (mineFragment != null) {
+            transaction.hide(mineFragment);
         }
     }
 
@@ -119,7 +122,6 @@ public class MainActivity extends BaseActivity {
      * @param id
      */
     private void setBottomNavSelected(int id) {
-        currentId = id;
         switch (id) {
             case R.id.tv_home:
                 tvHome.setSelected(true);
@@ -150,37 +152,22 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.tv_home)
     void selectHome() {
-        setBottomNavSelected(R.id.tv_home);
-        switchFragmentTo(R.id.tv_home);
+        selectTab(R.id.tv_home);
     }
 
     @OnClick(R.id.tv_brand)
     void selectBrand() {
-        setBottomNavSelected(R.id.tv_brand);
-        switchFragmentTo(R.id.tv_brand);
+        selectTab(R.id.tv_brand);
     }
 
     @OnClick(R.id.tv_find)
     void selectFind() {
-        setBottomNavSelected(R.id.tv_find);
-        switchFragmentTo(R.id.tv_find);
+        selectTab(R.id.tv_find);
     }
 
     @OnClick(R.id.tv_mine)
     void selectMine() {
-        setBottomNavSelected(R.id.tv_mine);
-        switchFragmentTo(R.id.tv_mine);
+        selectTab(R.id.tv_mine);
     }
 
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putInt(CURRENT_ID, currentId);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

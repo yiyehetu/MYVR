@@ -1,6 +1,5 @@
 package com.yaya.myvr.base;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import butterknife.ButterKnife;
 
@@ -39,17 +37,13 @@ public abstract class BaseFragment extends Fragment {
 
         ButterKnife.bind(this, rootView);
         initView();
-
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressLint("NewApi")
-            @Override
-            public void onGlobalLayout() {
-                rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                initData();
-            }
-        });
-
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initData();
     }
 
     // 通过Class跳转界面

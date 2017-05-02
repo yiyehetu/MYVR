@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MYVR</string>
+    <string name="first_pager">首页</string>
+    <string name="second_pager">品牌</string>
+    <string name="third_pager">发现</string>
+    <string name="four_pager">我的</string>
+</resources>

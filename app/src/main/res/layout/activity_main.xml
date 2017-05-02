@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/fl_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:id="@+id/ll_main"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_home"
+            style="@style/TextViewBottomBar"
+            android:drawableTop="@drawable/main_img_home_selector"
+            android:text="@string/first_pager" />
+
+        <TextView
+            android:id="@+id/tv_brand"
+            style="@style/TextViewBottomBar"
+            android:drawableTop="@drawable/main_img_brand_selector"
+            android:text="@string/second_pager" />
+
+        <TextView
+            android:id="@+id/tv_find"
+            style="@style/TextViewBottomBar"
+            android:drawableTop="@drawable/main_img_find_selector"
+            android:text="@string/third_pager" />
+
+        <TextView
+            android:id="@+id/tv_mine"
+            style="@style/TextViewBottomBar"
+            android:drawableTop="@drawable/main_img_mine_selector"
+            android:text="@string/four_pager" />
+    </LinearLayout>
+
+</LinearLayout>
+

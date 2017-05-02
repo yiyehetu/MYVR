@@ -18,4 +18,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:drawablePadding">3dp</item>
     </style>
+
+    <style name="FullScreenStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <!--隐藏启动变化-->
+        <item name="android:windowBackground">@drawable/icon_welcome</item>
+    </style>
 </resources>

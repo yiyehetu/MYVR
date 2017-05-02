@@ -24,8 +24,6 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.tv_mine)
     TextView tvMine;
 
-    private static final String CURRENT_ID = "currentId";
-    private int currentId;
     private HomeFragment homeFragment;
     private BrandFragment brandFragment;
     private FindFragment findFragment;

@@ -1,49 +1,67 @@
 package com.yaya.myvr.adapter;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.content.Context;
+import android.support.v4.view.PagerAdapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.yaya.myvr.app.AppConst;
+import com.bumptech.glide.Glide;
+import com.yaya.myvr.R;
 import com.yaya.myvr.bean.HomeInfo;
-import com.yaya.myvr.fragment.LoopFragment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by admin on 2017/5/3.
  */
 
-public class HomePagerAdapter extends FragmentPagerAdapter {
+public class HomePagerAdapter extends PagerAdapter {
+    private Context context;
     private List<HomeInfo.DataBean.LoopViewBean> loopList;
-    private List<LoopFragment> loopFragments = new ArrayList<>();
+    private int size;
 
-    public HomePagerAdapter(FragmentManager fm, List<HomeInfo.DataBean.LoopViewBean> loopList) {
-        super(fm);
+    public HomePagerAdapter(Context context, List<HomeInfo.DataBean.LoopViewBean> loopList) {
+        this.context = context;
         this.loopList = loopList;
 
-        for (int i = 0; i < loopList.size(); i++) {
-            HomeInfo.DataBean.LoopViewBean bean = loopList.get(i);
-            LoopFragment loopFragment = new LoopFragment();
-            Bundle args = new Bundle();
-            args.putString(AppConst.LOOP_IMG, bean.getImg());
-            args.putString(AppConst.LOOP_TITLE, bean.getTitle());
-            args.putString(AppConst.LOOP_ID, bean.getVideoId());
-            loopFragment.setArguments(args);
-            loopFragments.add(loopFragment);
-        }
-
-    }
-
-    @Override
-    public Fragment getItem(int position) {
-        return loopFragments.get(position);
+        size = loopList.size();
     }
 
     @Override
     public int getCount() {
-        return loopList.size();
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public boolean isViewFromObject(View view, Object object) {
+        return view == object;
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        View itemView = LayoutInflater.from(context).inflate(R.layout.item_home_loop, container, false);
+        container.addView(itemView);
+
+        TextView tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
+        ImageView ivImg = (ImageView) itemView.findViewById(R.id.iv_img);
+        position = position - position / size * size;
+        HomeInfo.DataBean.LoopViewBean bean = loopList.get(position);
+        tvTitle.setText(bean.getTitle());
+
+
+        Glide.with(context)
+                .load(bean.getImg())
+                .crossFade()
+                .centerCrop()
+                .into(ivImg);
+        return itemView;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        container.removeView((View) object);
     }
 }

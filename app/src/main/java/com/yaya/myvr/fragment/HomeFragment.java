@@ -15,6 +15,7 @@ import com.yaya.myvr.bean.HomeInfo;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider;
+import com.yaya.myvr.widget.VpSwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,13 +34,15 @@ import rx.schedulers.Schedulers;
 
 public class HomeFragment extends BaseFragment {
     @BindView(R.id.srl_home)
-    SwipeRefreshLayout srlHome;
+    VpSwipeRefreshLayout srlHome;
     @BindView(R.id.rv_home)
     RecyclerView rvHome;
 
     private static final String TAG = HomeFragment.class.getSimpleName();
     private List<Subscription> subscriptions = new ArrayList<>();
     private Map<String, String> map = new HashMap<>();
+    private LinearLayoutManager layoutManager;
+    private HomeAdapter homeAdapter;
 
     @Override
     protected int getLayoutId() {
@@ -50,11 +53,32 @@ public class HomeFragment extends BaseFragment {
     protected void initView() {
         LogUtils.e(TAG, "HomeFragment init View...");
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager = new LinearLayoutManager(getContext());
         rvHome.setLayoutManager(layoutManager);
         RecyclerViewDivider divider = new RecyclerViewDivider(new ColorDrawable(0xffececec), LinearLayoutManager.VERTICAL);
         divider.setHeight(ConvertUtils.dp2px(getContext(), 8.0f));
         rvHome.addItemDecoration(divider);
+
+        rvHome.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int firstVisiableItem = -1;
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE && firstVisiableItem == 0 && homeAdapter != null) {
+//                    homeAdapter.performTask();
+//                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+//                firstVisiableItem = layoutManager.findFirstVisibleItemPosition();
+//                if (firstVisiableItem != 0 && homeAdapter != null) {
+//                    homeAdapter.cancelTask();
+//                }
+            }
+        });
 
         srlHome.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -106,7 +130,7 @@ public class HomeFragment extends BaseFragment {
 
     private void bindData(HomeInfo homeInfo) {
         if (homeInfo != null && homeInfo.getErrCode() == 0) {
-            HomeAdapter homeAdapter = new HomeAdapter(homeInfo.getData(), getContext(), getFragmentManager());
+            homeAdapter = new HomeAdapter(homeInfo.getData(), getContext());
             rvHome.setAdapter(homeAdapter);
 
         } else {

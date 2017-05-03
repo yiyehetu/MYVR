@@ -65,7 +65,7 @@ public class HomeGridAdapter extends BaseAdapter {
         return convertView;
     }
 
-    static class ViewHolder{
+    static class ViewHolder {
         ImageView ivIcon;
         TextView tvType;
     }

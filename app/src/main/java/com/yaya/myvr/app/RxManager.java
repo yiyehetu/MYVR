@@ -23,7 +23,7 @@ public class RxManager {
         }
 
         for (Subscription subscription : subscriptions) {
-            if (subscription != null && subscription.isUnsubscribed()) {
+            if (subscription != null && !subscription.isUnsubscribed()) {
                 subscription.unsubscribe();
             }
         }

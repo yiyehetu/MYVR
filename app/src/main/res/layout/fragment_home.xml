@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <com.yaya.myvr.widget.VpSwipeRefreshLayout
         android:id="@+id/srl_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -12,6 +12,6 @@
             android:id="@+id/rv_home"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </com.yaya.myvr.widget.VpSwipeRefreshLayout>
 
 </FrameLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:paddingBottom="3dp"
+    android:paddingTop="3dp">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:drawableLeft="@drawable/home_item_text_left"
+        android:drawablePadding="5dp"
+        android:gravity="center"
+        android:text="电影精选"
+        android:textColor="@color/black"
+        android:textSize="@dimen/textsize_14" />
+
+    <TextView
+        android:id="@+id/tv_type"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:text="美女 大片 3D"
+        android:textColor="@color/primary_text_disabled_material_light"
+        android:textSize="@dimen/textsize_10" />
+
+
+</RelativeLayout>

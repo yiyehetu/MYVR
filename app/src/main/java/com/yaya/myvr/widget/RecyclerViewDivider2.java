@@ -8,13 +8,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
+public class RecyclerViewDivider2 extends RecyclerView.ItemDecoration {
     private Drawable mDivider;
     private int leftMargin, rightMargin, topMargin, bottomMargin;
     private int width, height;
     private int mOrientation;
 
-    public RecyclerViewDivider(Drawable divider, int orientation) {
+    public RecyclerViewDivider2(Drawable divider, int orientation) {
         setDivider(divider);
         setOrientation(orientation);
     }
@@ -89,7 +89,7 @@ public class RecyclerViewDivider extends RecyclerView.ItemDecoration {
         final int right = parent.getWidth() - parent.getPaddingRight() - rightMargin;
 
         final int childCount = parent.getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        for (int i = 0; i < childCount - 2; i++) {
             final View child = parent.getChildAt(i);
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
             final int top = child.getBottom() + params.bottomMargin + topMargin;

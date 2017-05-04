@@ -271,7 +271,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         });
     }
 
-    class HomeHolder extends RecyclerView.ViewHolder {
+    static class HomeHolder extends RecyclerView.ViewHolder {
         ViewPager vpHeader;
         //        FixedGridView gvHeader;
         FixedGridView gvHeader;

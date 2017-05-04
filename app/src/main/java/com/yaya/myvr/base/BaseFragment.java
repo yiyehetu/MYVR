@@ -8,7 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.yaya.myvr.app.RxManager;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
+import rx.Subscription;
 
 /**
  * Created by yph
@@ -18,6 +24,7 @@ import butterknife.ButterKnife;
 
 public abstract class BaseFragment extends Fragment {
     protected View rootView;
+    protected List<Subscription> subscriptionList = new ArrayList<>();
 
     // 子Fragment加载布局
     protected abstract int getLayoutId();
@@ -77,4 +84,9 @@ public abstract class BaseFragment extends Fragment {
         startActivity(intent);
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        RxManager.unsubscribe(subscriptionList);
+    }
 }

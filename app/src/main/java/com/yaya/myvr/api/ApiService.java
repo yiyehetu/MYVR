@@ -1,5 +1,7 @@
 package com.yaya.myvr.api;
 
+import com.yaya.myvr.bean.BrandInfo;
+import com.yaya.myvr.bean.FindInfo;
 import com.yaya.myvr.bean.HomeInfo;
 
 import java.util.Map;
@@ -18,6 +20,12 @@ public interface ApiService {
     // 首页信息
     @GET("jsonApi")
     Observable<HomeInfo> getHomeInfo(@QueryMap Map<String, String> map);
+    // 品牌信息
+    @GET("jsonApi")
+    Observable<BrandInfo> getBrandInfo(@QueryMap Map<String, String> map);
+    // 发现信息
+    @GET("jsonApi")
+    Observable<FindInfo> getFindInfo(@QueryMap Map<String, String> map);
 //    // 画报
 //    @GET("articles/daily/simple/")
 //    Observable<BildInfo> getBildInfo(@QueryMap Map<String, String> map);

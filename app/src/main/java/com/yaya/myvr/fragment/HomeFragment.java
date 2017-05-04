@@ -14,7 +14,6 @@ import com.yaya.myvr.R;
 import com.yaya.myvr.adapter.HomeAdapter;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
-import com.yaya.myvr.app.RxManager;
 import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseFragment;
 import com.yaya.myvr.bean.HomeInfo;
@@ -23,9 +22,7 @@ import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider;
 import com.yaya.myvr.widget.VpSwipeRefreshLayout;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -48,7 +45,6 @@ public class HomeFragment extends BaseFragment {
     RelativeLayout rlSearch;
 
     private static final String TAG = HomeFragment.class.getSimpleName();
-    private List<Subscription> subscriptions = new ArrayList<>();
     private Map<String, String> map = new HashMap<>();
     private LinearLayoutManager layoutManager;
     private HomeAdapter homeAdapter;
@@ -164,23 +160,20 @@ public class HomeFragment extends BaseFragment {
                     }
                 });
 
-        subscriptions.add(subscription);
+        subscriptionList.add(subscription);
     }
 
+    /**
+     * 绑定数据
+     * @param homeInfo
+     */
     private void bindData(HomeInfo homeInfo) {
         if (homeInfo != null && homeInfo.getErrCode() == 0) {
             homeAdapter = new HomeAdapter(homeInfo.getData(), getContext());
             rvHome.setAdapter(homeAdapter);
-
         } else {
             // 数据有误
         }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        RxManager.unsubscribe(subscriptions);
     }
 
     @OnClick(R.id.ll_search)

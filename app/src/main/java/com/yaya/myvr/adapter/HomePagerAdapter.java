@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
@@ -44,19 +45,24 @@ public class HomePagerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = LayoutInflater.from(context).inflate(R.layout.item_home_loop, container, false);
         container.addView(itemView);
-
         TextView tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
         ImageView ivImg = (ImageView) itemView.findViewById(R.id.iv_img);
+
         position = position - position / size * size;
-        HomeInfo.DataBean.LoopViewBean bean = loopList.get(position);
+        final HomeInfo.DataBean.LoopViewBean bean = loopList.get(position);
+
         tvTitle.setText(bean.getTitle());
-
-
         Glide.with(context)
                 .load(bean.getImg())
                 .crossFade()
                 .centerCrop()
                 .into(ivImg);
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, ",videoId:" + bean.getVideoId(), Toast.LENGTH_SHORT).show();
+            }
+        });
         return itemView;
     }
 

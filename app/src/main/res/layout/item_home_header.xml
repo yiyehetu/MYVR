@@ -26,7 +26,7 @@
 
     </RelativeLayout>
 
-    <com.yaya.myvr.widget.XGridView
+    <!--<com.yaya.myvr.widget.XGridView
         android:id="@+id/gv_header"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -44,14 +44,14 @@
             android:layout_weight="1" />
 
 
-    </com.yaya.myvr.widget.XGridView>
+    </com.yaya.myvr.widget.XGridView>-->
 
-    <!--<com.yaya.myvr.widget.FixedGridView
-        android:visibility="gone"
+    <com.yaya.myvr.widget.FixedGridView
         android:id="@+id/gv_header"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:numColumns="5" />-->
+        android:listSelector="@android:color/transparent"
+        android:numColumns="5" />
 
 </LinearLayout>

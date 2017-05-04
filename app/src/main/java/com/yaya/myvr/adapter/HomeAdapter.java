@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,7 +18,6 @@ import com.yaya.myvr.bean.HomeInfo;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.FixedGridView;
-import com.yaya.myvr.widget.XGridView;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +63,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 headerHolder = new HomeHolder(headerView);
                 headerHolder.vpHeader = (ViewPager) headerView.findViewById(R.id.vp_header);
 //                headerHolder.gvHeader = (FixedGridView) headerView.findViewById(R.id.gv_header);
-                headerHolder.gvHeader = (XGridView) headerView.findViewById(R.id.gv_header);
+                headerHolder.gvHeader = (FixedGridView) headerView.findViewById(R.id.gv_header);
                 headerHolder.llIndex = (LinearLayout) headerView.findViewById(R.id.ll_index);
                 // 设置轮播标记
                 size = loopList.size();
@@ -71,15 +71,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 setIndex(headerHolder.llIndex, 0);
                 setViewPagerListener(headerHolder.vpHeader, headerHolder.llIndex);
                 performTask();
-                //
-                headerHolder.gvHeader.setAdapter(new HomeGridAdapter(context, btnList));
-                headerHolder.gvHeader.setOnItemClickListener(new XGridView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int positon) {
-                        Toast.makeText(context.getApplicationContext(), "positon:" + positon, Toast.LENGTH_SHORT).show();
-                    }
-                });
-
                 return headerHolder;
             case RECOMMEND:
                 View recommendView = LayoutInflater.from(context).inflate(R.layout.item_home_recommend, parent, false);
@@ -131,10 +122,19 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         }
     }
 
+    // 绑定头部
     private void bindHeader(HomeHolder holder) {
         holder.vpHeader.setAdapter(new HomePagerAdapter(context, loopList));
+        headerHolder.gvHeader.setAdapter(new HomeGridAdapter(context, btnList));
+        headerHolder.gvHeader.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(context, "positon:" + position + ",videoId:" + btnList.get(position).getCategory(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+    // 初始化轮播索引
     private void initIndex(LinearLayout linearLayout) {
         for (int i = 0; i < size; i++) {
             ImageView ivIndex = (ImageView) LayoutInflater.from(context).inflate(R.layout.item_home_index, linearLayout, false);
@@ -147,6 +147,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         }
     }
 
+    // 设置轮播索引
     private void setIndex(LinearLayout linearLayout, int index) {
         for (int i = 0; i < size; i++) {
             ImageView ivIndex = (ImageView) linearLayout.getChildAt(i);
@@ -192,6 +193,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         });
     }
 
+    // 执行定时任务
     public void performTask() {
         if (headerHolder == null) {
             return;
@@ -212,12 +214,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 });
     }
 
+    // 取消定时任务
     public void cancelTask() {
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }
     }
 
+    // 绑定推荐Item
     private void bindRecommend(HomeHolder holder) {
         String adUrl = homeList.get(1).getAdData();
         Glide.with(context)
@@ -226,23 +230,37 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 .crossFade()
                 .into(holder.ivRecommend);
 
-        HomeInfo.DataBean.HomeListBean bean = homeList.get(0);
+        final HomeInfo.DataBean.HomeListBean bean = homeList.get(0);
         holder.tvTitle.setText(bean.getTitle());
         holder.tvType.setText(bean.getTitle2());
         holder.gvRecommend.setAdapter(new HomeGridAdapter2(context, bean.getList()));
+
+        holder.gvRecommend.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(context, "positon:" + position + ",videoId:" + bean.getList().get(position).getVideoId(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
+    // 绑定默认Item
     private void bindDefault(HomeHolder holder, int position) {
-        HomeInfo.DataBean.HomeListBean bean = homeList.get(position);
+        final HomeInfo.DataBean.HomeListBean bean = homeList.get(position);
         holder.tvTitle.setText(bean.getTitle());
         holder.tvType.setText(bean.getTitle2());
         holder.gvDefault.setAdapter(new HomeGridAdapter2(context, bean.getList()));
+        holder.gvDefault.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(context, "positon:" + position + ",videoId:" + bean.getList().get(position).getVideoId(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     class HomeHolder extends RecyclerView.ViewHolder {
         ViewPager vpHeader;
-//        FixedGridView gvHeader;
-        XGridView gvHeader;
+        //        FixedGridView gvHeader;
+        FixedGridView gvHeader;
         LinearLayout llIndex;
 
         FixedGridView gvRecommend;

@@ -52,6 +52,7 @@ public class HomeGridAdapter2 extends BaseAdapter {
             holder = new ViewHolder();
             holder.ivPic = (ImageView) convertView.findViewById(R.id.iv_pic);
             holder.tvTitle = (TextView) convertView.findViewById(R.id.tv_title);
+            holder.tvMark = (TextView) convertView.findViewById(R.id.tv_mark);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -65,12 +66,22 @@ public class HomeGridAdapter2 extends BaseAdapter {
                 .crossFade()
                 .into(holder.ivPic);
         holder.tvTitle.setText(bean.getTitle());
+
+
+        String format = bean.getFormat();
+        if ("3".equals(format)) {
+            holder.tvMark.setText("360");
+        } else {
+            holder.tvMark.setText("3D");
+        }
+
         return convertView;
     }
 
     static class ViewHolder {
         ImageView ivPic;
         TextView tvTitle;
+        TextView tvMark;
     }
 
 }

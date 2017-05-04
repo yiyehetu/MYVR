@@ -26,6 +26,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 
 /**
@@ -46,6 +47,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     private int currPostion = 0;
 
     private HomeHolder headerHolder;
+    // 自动滑动标记
+    private boolean isAutoIndex = true;
+
+    public void setAutoIndex(boolean autoIndex) {
+        isAutoIndex = autoIndex;
+    }
 
     public HomeAdapter(HomeInfo.DataBean data, Context context) {
         btnList = data.getBtns();
@@ -178,15 +185,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 switch (state) {
                     case ViewPager.SCROLL_STATE_IDLE:
                         LogUtils.e(TAG, "---->SCROLL_STATE_IDLE");
-                        performTask();
+                        isAutoIndex = true;
                         break;
                     case ViewPager.SCROLL_STATE_DRAGGING:
                         LogUtils.e(TAG, "---->SCROLL_STATE_DRAGGING");
-                        cancelTask();
+                        isAutoIndex = false;
                         break;
                     case ViewPager.SCROLL_STATE_SETTLING:
-                        LogUtils.e(TAG, "---->SCROLL_STATE_SETTLING");
-                        cancelTask();
                         break;
                 }
             }
@@ -200,16 +205,25 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         }
 
         subscription = Observable.interval(5, 5, TimeUnit.SECONDS)
+                .filter(new Func1<Long, Boolean>() {
+                    @Override
+                    public Boolean call(Long aLong) {
+                        return isAutoIndex;
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long aLong) {
-                        int postion = (int) (currPostion + aLong + 1);
+                        LogUtils.e(TAG, "aLong = " + aLong);
+//                        if (isAutoIndex) {
+                        int postion = (int) (currPostion + 1);
                         LogUtils.e(TAG, "postion = " + postion);
                         headerHolder.vpHeader.setCurrentItem(postion);
                         int index = postion - postion / size * size;
                         LogUtils.e(TAG, "index = " + index);
                         setIndex(headerHolder.llIndex, index);
+//                        }
                     }
                 });
     }

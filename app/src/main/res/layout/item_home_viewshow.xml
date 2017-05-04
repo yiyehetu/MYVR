@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/iv_pic"
@@ -15,6 +14,7 @@
         android:id="@+id/tv_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/iv_pic"
         android:paddingBottom="10dp"
         android:paddingLeft="5dp"
         android:paddingTop="5dp"
@@ -22,4 +22,17 @@
         android:textColor="@color/primary_dark_material_light"
         android:textSize="@dimen/textsize_12" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/tv_mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="3dp"
+        android:background="@drawable/home_item_cornormark"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:text="360"
+        android:textColor="@color/white"
+        android:textSize="@dimen/textsize_10" />
+
+</RelativeLayout>

@@ -38,6 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             View decorView = getWindow().getDecorView();
             int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            // 设置系统UI可见性
             decorView.setSystemUiVisibility(option);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }

@@ -21,6 +21,7 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void initView() {
         setNetBaseMap();
+        // 延时任务
         Observable.timer(1000, TimeUnit.MILLISECONDS)
                 .subscribe(new Action1<Long>() {
                     @Override

@@ -124,8 +124,10 @@ public class BrandFragment extends BaseFragment {
         if (brandInfo != null && brandInfo.getErrCode() == 0) {
             BrandAdapter brandAdapter = new BrandAdapter(brandInfo.getData(), getContext());
             rvBrand.setAdapter(brandAdapter);
+
         } else {
 
         }
     }
+
 }

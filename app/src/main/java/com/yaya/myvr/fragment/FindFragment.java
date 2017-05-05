@@ -8,12 +8,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.adapter.FindAdapter;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
 import com.yaya.myvr.base.BaseFragment;
+import com.yaya.myvr.bean.BrandInfo;
 import com.yaya.myvr.bean.FindInfo;
+import com.yaya.myvr.dao.Brand;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider2;
@@ -44,6 +47,7 @@ public class FindFragment extends BaseFragment {
 
     private static final String TAG = FindFragment.class.getSimpleName();
     private Map<String, String> map = new HashMap<>();
+    private Map<Integer, Brand> brandMap = new HashMap<>();
     private int currStart = 0;
     private LinearLayoutManager layoutManager;
     private List<FindInfo.DataBean> findList;
@@ -106,7 +110,7 @@ public class FindFragment extends BaseFragment {
             public void onGlobalLayout() {
                 rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 srlFind.setRefreshing(true);
-                requestData();
+                readDataBase();
             }
         });
 
@@ -121,6 +125,20 @@ public class FindFragment extends BaseFragment {
 
     }
 
+    private void readDataBase() {
+        List<Brand> brandList = SQLite.select()
+                .from(Brand.class)
+                .queryList();
+
+        if (brandList.size() == 0) {
+            requestBrandData();
+        }else{
+
+        }
+
+        requestData();
+    }
+
 
     @Override
     protected void initData() {
@@ -128,7 +146,7 @@ public class FindFragment extends BaseFragment {
     }
 
     /**
-     * 请求数据
+     * 请求发现数据
      */
     private void requestData() {
         map.put("start", currStart + "");
@@ -178,6 +196,56 @@ public class FindFragment extends BaseFragment {
             currStart += 10;
         } else {
 
+        }
+    }
+
+    /**
+     * 请求品牌数据
+     */
+    private void requestBrandData() {
+        Map<String, String> map2 = new HashMap<>();
+        map2.putAll(ApiConst.BASE_MAP);
+        map2.put("cmd", "getIndex");
+
+        Subscription subscription = ApiManager.getInstance().getApiService().getBrandInfo(map2)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<BrandInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        LogUtils.e(TAG, "onCompleted...");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(BrandInfo brandInfo) {
+                        LogUtils.e(TAG, "onNext... brandInfo = " + brandInfo);
+                        WriteData(brandInfo);
+                    }
+                });
+
+        subscriptionList.add(subscription);
+    }
+
+    // 写入数据到集合或数据库
+    private void WriteData(BrandInfo brandInfo) {
+        if(brandInfo != null && brandInfo.getErrCode() == 0){
+            List<BrandInfo.DataBean.ListBean> beanList = brandInfo.getData().getList();
+            for(int i = 0; i < beanList.size(); i++) {
+                BrandInfo.DataBean.ListBean bean = beanList.get(i);
+                Brand brand = new Brand();
+                brand.brandId = bean.getId();
+                brand.logo = bean.getLogo();
+                brand.name = bean.getName();
+                brand.save();
+
+                brandMap.put(Integer.getInteger(brand.brandId), brand);
+            }
         }
     }
 

@@ -9,16 +9,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.yaya.myvr.app.AppManager;
+import com.yaya.myvr.app.RxManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
+import rx.Subscription;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
     // 子Activity加载布局
     protected abstract int getLayoutId();
-
     // 初始化View
     protected abstract void initView();
+    // 订阅集合
+    protected List<Subscription> subscriptionList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +97,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             intent.putExtras(bundle);
         }
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        RxManager.unsubscribe(subscriptionList);
     }
 
     @Override

@@ -11,6 +11,7 @@ import rx.Subscription;
 public class RxManager {
     /**
      * 取消订阅
+     *
      * @param subscriptions
      */
     public static void unsubscribe(List<Subscription> subscriptions) {
@@ -18,13 +19,10 @@ public class RxManager {
             return;
         }
 
-        if (subscriptions.size() > 0) {
-            return;
-        }
-
         for (Subscription subscription : subscriptions) {
             if (subscription != null && !subscription.isUnsubscribed()) {
                 subscription.unsubscribe();
+                subscription = null;
             }
         }
 

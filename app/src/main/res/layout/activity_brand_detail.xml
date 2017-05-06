@@ -10,9 +10,9 @@
         android:descendantFocusability="blocksDescendants" />
 
     <LinearLayout
+        android:id="@+id/ll_brand"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="@color/top_nav_background"
         android:orientation="vertical">
 
         <View
@@ -20,7 +20,6 @@
             android:layout_height="20dp" />
 
         <RelativeLayout
-            android:id="@+id/rl_brand"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

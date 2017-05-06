@@ -219,7 +219,9 @@ public class HomeFragment extends BaseFragment {
     public void onStop() {
         super.onStop();
         LogUtils.e(TAG, "onStop...");
-        homeAdapter.cancelTask();
+        if (homeAdapter != null) {
+            homeAdapter.cancelTask();
+        }
     }
 
 }

@@ -6,7 +6,7 @@
     <com.yaya.myvr.widget.VpSwipeRefreshLayout
         android:id="@+id/srl_home"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_home"
@@ -14,6 +14,13 @@
             android:layout_height="match_parent"
             android:descendantFocusability="blocksDescendants" />
     </com.yaya.myvr.widget.VpSwipeRefreshLayout>
+
+    <include
+        android:id="@+id/rl_error"
+        layout="@layout/all_loading_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="70dp" />
 
     <RelativeLayout
         android:id="@+id/rl_search"

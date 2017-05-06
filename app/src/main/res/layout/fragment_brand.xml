@@ -4,20 +4,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/item_all_titlebar"/>
+    <include layout="@layout/item_all_titlebar" />
+
+    <include layout="@layout/all_loading_error" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/srl_brand"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_brand"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
     </android.support.v4.widget.SwipeRefreshLayout>
-
-
 
 </LinearLayout>

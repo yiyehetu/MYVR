@@ -62,6 +62,7 @@ public class HomeGridAdapter2 extends BaseAdapter {
 
         Glide.with(context)
                 .load(bean.getImg())
+                .placeholder(R.drawable.icon_placeholder)
                 .centerCrop()
                 .crossFade()
                 .into(holder.ivPic);

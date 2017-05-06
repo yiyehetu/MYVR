@@ -200,7 +200,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     // 执行定时任务
     public void performTask() {
-        if (headerHolder == null) {
+        if (subscription != null) {
             return;
         }
 
@@ -232,6 +232,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     public void cancelTask() {
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
+            subscription = null;
         }
     }
 

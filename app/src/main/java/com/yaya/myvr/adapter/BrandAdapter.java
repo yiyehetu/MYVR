@@ -41,6 +41,7 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandHolder>
         final BrandInfo.DataBean.ListBean bean = brandList.get(position);
         Glide.with(context)
                 .load(bean.getLogo())
+                .placeholder(R.drawable.icon_placeholder_squre)
                 .centerCrop()
                 .crossFade()
                 .into(holder.ivLogo);

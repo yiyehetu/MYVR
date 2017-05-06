@@ -6,30 +6,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
 import com.yaya.myvr.bean.FindInfo;
+import com.yaya.myvr.dao.Brand;
+import com.yaya.myvr.util.LogUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by admin on 2017/5/4.
  */
 
 public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
+    private static final String TAG = FindAdapter.class.getSimpleName();
     private static final int DEFAULT = 101;
     private static final int BOTTOM = 102;
     private List<FindInfo.DataBean> findList;
     private Context context;
+    private Map<Integer, Brand> brandMap;
 
     // 底部标记
     private boolean isBottom = false;
 
-    public FindAdapter(List<FindInfo.DataBean> findList, Context context) {
+    public FindAdapter(List<FindInfo.DataBean> findList, Context context, Map<Integer, Brand> brandMap) {
         this.findList = findList;
         this.context = context;
+        this.brandMap = brandMap;
     }
 
     @Override
@@ -40,6 +48,10 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
                 FindHolder defaultHolder = new FindHolder(defaultView);
                 defaultHolder.ivPic = (ImageView) defaultView.findViewById(R.id.iv_pic);
                 defaultHolder.tvTitle = (TextView) defaultView.findViewById(R.id.tv_title);
+                defaultHolder.llBrand = (LinearLayout) defaultView.findViewById(R.id.ll_brand);
+                defaultHolder.ivLogo = (ImageView) defaultView.findViewById(R.id.iv_logo);
+                defaultHolder.tvName = (TextView) defaultView.findViewById(R.id.tv_name);
+                defaultHolder.tvTimes = (TextView) defaultView.findViewById(R.id.tv_times);
                 return defaultHolder;
             default:
                 View bottomView = LayoutInflater.from(context).inflate(R.layout.item_find_bottom, parent, false);
@@ -71,6 +83,23 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
                 .crossFade()
                 .into(holder.ivPic);
         holder.tvTitle.setText(bean.getTitle());
+
+        final Brand brand = brandMap.get(Integer.valueOf(bean.getBrand()));
+        LogUtils.e(TAG, "brand = " + brand);
+        Glide.with(context)
+                .load(brand.logo)
+                .placeholder(R.drawable.icon_placeholder_squre)
+                .centerCrop()
+                .crossFade()
+                .into(holder.ivLogo);
+        holder.tvName.setText(brand.name);
+        holder.tvTimes.setText(bean.getPlayTimes());
+        holder.llBrand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context.getApplicationContext(), "brandId:" + brand.brandId, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void bindBottom(FindHolder holder) {
@@ -102,6 +131,10 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
     static class FindHolder extends RecyclerView.ViewHolder {
         ImageView ivPic;
         TextView tvTitle;
+        LinearLayout llBrand;
+        ImageView ivLogo;
+        TextView tvName;
+        TextView tvTimes;
 
         TextView tvBottom;
 

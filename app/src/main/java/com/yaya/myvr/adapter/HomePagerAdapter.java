@@ -54,6 +54,7 @@ public class HomePagerAdapter extends PagerAdapter {
         tvTitle.setText(bean.getTitle());
         Glide.with(context)
                 .load(bean.getImg())
+                .placeholder(R.drawable.icon_black_alpha_top_mask)
                 .crossFade()
                 .centerCrop()
                 .into(ivImg);

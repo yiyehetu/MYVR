@@ -5,7 +5,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -44,6 +47,8 @@ public class FindFragment extends BaseFragment {
     SwipeRefreshLayout srlFind;
     @BindView(R.id.rv_find)
     RecyclerView rvFind;
+    @BindView(R.id.rl_error)
+    RelativeLayout rlError;
 
     private static final String TAG = FindFragment.class.getSimpleName();
     private Map<String, String> map = new HashMap<>();
@@ -131,12 +136,16 @@ public class FindFragment extends BaseFragment {
                 .queryList();
 
         if (brandList.size() == 0) {
+            LogUtils.e(TAG, "数据库无数据...");
             requestBrandData();
-        }else{
-
+        } else {
+            // 写入集合
+            for (Brand brand : brandList) {
+                brandMap.put(Integer.valueOf(brand.brandId), brand);
+            }
+            LogUtils.e(TAG, "读取数据库数据..." + brandMap);
+            requestData();
         }
-
-        requestData();
     }
 
 
@@ -159,18 +168,26 @@ public class FindFragment extends BaseFragment {
                     @Override
                     public void onCompleted() {
                         LogUtils.e(TAG, "onCompleted...");
-                        srlFind.setRefreshing(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LogUtils.e(TAG, "onError... e = " + e.getMessage());
-                        srlFind.setRefreshing(false);
+                        if (currStart == 0) {
+                            rlError.setVisibility(View.VISIBLE);
+                            srlFind.setRefreshing(false);
+                        }
                     }
 
                     @Override
                     public void onNext(FindInfo findInfo) {
                         LogUtils.e(TAG, "onNext... findInfo = " + findInfo);
+                        if (currStart == 0 && rlError.isShown()) {
+                            rlError.setVisibility(View.GONE);
+                        }
+                        if (currStart == 0) {
+                            srlFind.setRefreshing(false);
+                        }
                         bindData(findInfo);
                     }
                 });
@@ -187,7 +204,7 @@ public class FindFragment extends BaseFragment {
         if (findInfo != null && findInfo.getErrCode() == 0) {
             if (currStart == 0) {
                 findList = findInfo.getData();
-                findAdapter = new FindAdapter(findList, getContext());
+                findAdapter = new FindAdapter(findList, getContext(), brandMap);
                 rvFind.setAdapter(findAdapter);
             } else {
                 findList.addAll(findInfo.getData());
@@ -205,7 +222,7 @@ public class FindFragment extends BaseFragment {
     private void requestBrandData() {
         Map<String, String> map2 = new HashMap<>();
         map2.putAll(ApiConst.BASE_MAP);
-        map2.put("cmd", "getIndex");
+        map2.put("cmd", "getBrandList");
 
         Subscription subscription = ApiManager.getInstance().getApiService().getBrandInfo(map2)
                 .subscribeOn(Schedulers.io())
@@ -220,12 +237,15 @@ public class FindFragment extends BaseFragment {
                     @Override
                     public void onError(Throwable e) {
                         LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                        rlError.setVisibility(View.VISIBLE);
+                        srlFind.setRefreshing(false);
                     }
 
                     @Override
                     public void onNext(BrandInfo brandInfo) {
                         LogUtils.e(TAG, "onNext... brandInfo = " + brandInfo);
                         WriteData(brandInfo);
+                        requestData();
                     }
                 });
 
@@ -234,9 +254,9 @@ public class FindFragment extends BaseFragment {
 
     // 写入数据到集合或数据库
     private void WriteData(BrandInfo brandInfo) {
-        if(brandInfo != null && brandInfo.getErrCode() == 0){
+        if (brandInfo != null && brandInfo.getErrCode() == 0) {
             List<BrandInfo.DataBean.ListBean> beanList = brandInfo.getData().getList();
-            for(int i = 0; i < beanList.size(); i++) {
+            for (int i = 0; i < beanList.size(); i++) {
                 BrandInfo.DataBean.ListBean bean = beanList.get(i);
                 Brand brand = new Brand();
                 brand.brandId = bean.getId();
@@ -244,9 +264,17 @@ public class FindFragment extends BaseFragment {
                 brand.name = bean.getName();
                 brand.save();
 
-                brandMap.put(Integer.getInteger(brand.brandId), brand);
+                brandMap.put(Integer.valueOf(brand.brandId), brand);
             }
+            LogUtils.e(TAG, "写入数据库数据...");
         }
+    }
+
+    @OnClick(R.id.rl_error)
+    void reLoad() {
+        rlError.setVisibility(View.GONE);
+        srlFind.setRefreshing(true);
+        readDataBase();
     }
 
 }

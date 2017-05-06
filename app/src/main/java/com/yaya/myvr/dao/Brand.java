@@ -23,4 +23,14 @@ public class Brand extends BaseModel {
 
     @Column
     public String name;
+
+    @Override
+    public String toString() {
+        return "Brand{" +
+                "id=" + id +
+                ", brandId='" + brandId + '\'' +
+                ", logo='" + logo + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -43,12 +44,14 @@ public class HomeFragment extends BaseFragment {
     RecyclerView rvHome;
     @BindView(R.id.rl_search)
     RelativeLayout rlSearch;
+    @BindView(R.id.rl_error)
+    RelativeLayout rlError;
 
     private static final String TAG = HomeFragment.class.getSimpleName();
     private Map<String, String> map = new HashMap<>();
     private LinearLayoutManager layoutManager;
     private HomeAdapter homeAdapter;
-    private static final int BASE_Y = ConvertUtils.dp2px(VRApp.getAppInstance().getApplicationContext(), 240);
+    private static final float BASE_Y = ConvertUtils.dp2px(VRApp.getAppInstance().getApplicationContext(), 240);
 
     @Override
     protected int getLayoutId() {
@@ -66,10 +69,8 @@ public class HomeFragment extends BaseFragment {
         rvHome.addItemDecoration(divider);
 
         rvHome.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            private int firstVisiableItem = -1;
-            private float currentY;
-            // 颜色设置标记
-            private boolean isEnter;
+            private int firstVisiableItem = 0;
+
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -87,19 +88,21 @@ public class HomeFragment extends BaseFragment {
                     homeAdapter.setAutoIndex(false);
                 }
 
-                currentY += dy;
-                LogUtils.e(TAG, "currentY = " + currentY);
-                if (currentY <= BASE_Y) {
-                    isEnter = false;
-                    int alpha = (int) (currentY / BASE_Y * 255);
-                    rlSearch.setBackgroundColor(Color.argb(alpha, 47, 79, 79));
-                } else {
-                    if (!isEnter) {
-                        isEnter = true;
+                // 顶部渐变
+                if (firstVisiableItem == 0) {
+                    View firstView = layoutManager.findViewByPosition(0);
+                    int[] location = new int[2];
+                    firstView.getLocationInWindow(location);
+
+                    int currY = Math.abs(location[1]);
+                    LogUtils.e(TAG, "currY = " + currY);
+                    if (currY <= BASE_Y) {
+                        int alpha = (int) (currY / BASE_Y * 255);
+                        rlSearch.setBackgroundColor(Color.argb(alpha, 47, 79, 79));
+                    } else {
                         rlSearch.setBackgroundColor(Color.argb(255, 47, 79, 79));
                     }
                 }
-
             }
         });
 
@@ -151,11 +154,15 @@ public class HomeFragment extends BaseFragment {
                     public void onError(Throwable e) {
                         LogUtils.e(TAG, "onError... e = " + e.getMessage());
                         srlHome.setRefreshing(false);
+                        rlError.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onNext(HomeInfo homeInfo) {
                         LogUtils.e(TAG, "onNext... homeInfo = " + homeInfo);
+                        if (rlError.isShown()) {
+                            rlError.setVisibility(View.GONE);
+                        }
                         bindData(homeInfo);
                     }
                 });
@@ -165,6 +172,7 @@ public class HomeFragment extends BaseFragment {
 
     /**
      * 绑定数据
+     *
      * @param homeInfo
      */
     private void bindData(HomeInfo homeInfo) {
@@ -176,6 +184,13 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    @OnClick(R.id.rl_error)
+    void reLoad() {
+        srlHome.setRefreshing(true);
+        rlError.setVisibility(View.GONE);
+        requestData();
+    }
+
     @OnClick(R.id.ll_search)
     void clickSearch() {
         Toast.makeText(getContext(), "click search...", Toast.LENGTH_SHORT).show();
@@ -185,4 +200,21 @@ public class HomeFragment extends BaseFragment {
     void clickScan() {
         Toast.makeText(getContext(), "click scan...", Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        LogUtils.e(TAG, "onStart...");
+        if (homeAdapter != null) {
+            homeAdapter.performTask();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        LogUtils.e(TAG, "onStop...");
+        homeAdapter.cancelTask();
+    }
+
 }

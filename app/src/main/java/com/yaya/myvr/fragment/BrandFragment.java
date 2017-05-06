@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yaya.myvr.R;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -38,6 +41,8 @@ public class BrandFragment extends BaseFragment {
     SwipeRefreshLayout srlBrand;
     @BindView(R.id.rv_brand)
     RecyclerView rvBrand;
+    @BindView(R.id.rl_error)
+    RelativeLayout rlError;
 
     private static final String TAG = BrandFragment.class.getSimpleName();
     private Map<String, String> map = new HashMap<>();
@@ -103,11 +108,15 @@ public class BrandFragment extends BaseFragment {
                     public void onError(Throwable e) {
                         LogUtils.e(TAG, "onError... e = " + e.getMessage());
                         srlBrand.setRefreshing(false);
+                        rlError.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onNext(BrandInfo brandInfo) {
                         LogUtils.e(TAG, "onNext... brandInfo = " + brandInfo);
+                        if (rlError.isShown()) {
+                            rlError.setVisibility(View.GONE);
+                        }
                         bindData(brandInfo);
                     }
                 });
@@ -130,4 +139,10 @@ public class BrandFragment extends BaseFragment {
         }
     }
 
+    @OnClick(R.id.rl_error)
+    void reLoad() {
+        rlError.setVisibility(View.GONE);
+        srlBrand.setRefreshing(true);
+        requestData();
+    }
 }

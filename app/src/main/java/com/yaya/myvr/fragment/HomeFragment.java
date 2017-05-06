@@ -70,8 +70,8 @@ public class HomeFragment extends BaseFragment {
 
         rvHome.addOnScrollListener(new RecyclerView.OnScrollListener() {
             private int firstVisiableItem = 0;
-
-
+            // 透明状态
+            private boolean isTransparent = true;
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -97,15 +97,20 @@ public class HomeFragment extends BaseFragment {
                     int currY = Math.abs(location[1]);
                     LogUtils.e(TAG, "currY = " + currY);
                     if (currY <= BASE_Y) {
+                        isTransparent = true;
                         int alpha = (int) (currY / BASE_Y * 255);
                         rlSearch.setBackgroundColor(Color.argb(alpha, 47, 79, 79));
                     } else {
-                        rlSearch.setBackgroundColor(Color.argb(255, 47, 79, 79));
+                        if (isTransparent) {
+                            rlSearch.setBackgroundColor(Color.argb(255, 47, 79, 79));
+                            isTransparent = false;
+                        }
                     }
                 }
             }
         });
 
+        srlHome.setColorSchemeColors(getResources().getColor(R.color.top_nav_background));
         srlHome.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

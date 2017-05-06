@@ -61,6 +61,7 @@ public class BrandFragment extends BaseFragment {
         rvBrand.setLayoutManager(layoutManager);
         rvBrand.addItemDecoration(new RecyclerViewGridDivider(getContext()));
 
+        srlBrand.setColorSchemeColors(getResources().getColor(R.color.top_nav_background));
         // 添加加载刷新
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")

@@ -8,4 +8,5 @@ public class AppConst {
     public static final String LOOP_IMG = "loop_img";
     public static final String LOOP_TITLE = "loop_title";
     public static final String LOOP_ID = "loop_id";
+    public static final String BRAND_ID = "brand_id";
 }

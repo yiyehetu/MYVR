@@ -1,15 +1,19 @@
 package com.yaya.myvr.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.BrandDetailActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.BrandInfo;
 
 import java.util.List;
@@ -37,7 +41,7 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandHolder>
     }
 
     @Override
-    public void onBindViewHolder(BrandHolder holder, final int position) {
+    public void onBindViewHolder(BrandHolder holder, int position) {
         final BrandInfo.DataBean.ListBean bean = brandList.get(position);
         Glide.with(context)
                 .load(bean.getLogo())
@@ -49,10 +53,35 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandHolder>
         holder.ivLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context.getApplicationContext(), "id:" + bean.getId(), Toast.LENGTH_SHORT).show();
+                ScaleAnimation scaleAnimation = new ScaleAnimation(1.0f, 1.05f, 1.0f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                scaleAnimation.setDuration(100);
+                v.startAnimation(scaleAnimation);
+
+                // 动画监听
+                setAnimationListener(scaleAnimation, bean);
             }
         });
+    }
 
+    private void setAnimationListener(ScaleAnimation scaleAnimation, final BrandInfo.DataBean.ListBean bean) {
+        scaleAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Intent intent = new Intent(context, BrandDetailActivity.class);
+                intent.putExtra(AppConst.BRAND_ID, bean.getId());
+                context.startActivity(intent);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     @Override

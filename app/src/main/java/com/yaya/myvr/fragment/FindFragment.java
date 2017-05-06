@@ -108,6 +108,7 @@ public class FindFragment extends BaseFragment {
             }
         });
 
+        srlFind.setColorSchemeColors(getResources().getColor(R.color.top_nav_background));
         // 添加加载刷新
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")

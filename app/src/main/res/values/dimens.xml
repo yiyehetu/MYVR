@@ -7,4 +7,5 @@
     <dimen name="textsize_11">11sp</dimen>
     <dimen name="textsize_18">18sp</dimen>
     <dimen name="textsize_16">16sp</dimen>
+    <dimen name="textsize_13">13sp</dimen>
 </resources>

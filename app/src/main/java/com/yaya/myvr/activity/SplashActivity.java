@@ -11,6 +11,9 @@ import java.util.concurrent.TimeUnit;
 import rx.Observable;
 import rx.functions.Action1;
 
+/**
+ * 欢迎页面
+ */
 public class SplashActivity extends BaseActivity {
 
     @Override

@@ -3,8 +3,10 @@ package com.yaya.myvr.api;
 import com.yaya.myvr.bean.BrandBottomInfo;
 import com.yaya.myvr.bean.BrandInfo;
 import com.yaya.myvr.bean.BrandTopInfo;
+import com.yaya.myvr.bean.DictInfo;
 import com.yaya.myvr.bean.FindInfo;
 import com.yaya.myvr.bean.HomeInfo;
+import com.yaya.myvr.bean.TypeInfo;
 
 import java.util.Map;
 
@@ -22,6 +24,13 @@ public interface ApiService {
     // 首页信息
     @GET("jsonApi")
     Observable<HomeInfo> getHomeInfo(@QueryMap Map<String, String> map);
+
+    // 分类信息
+    @GET("jsonApi")
+    Observable<DictInfo> getDictInfo(@QueryMap Map<String, String> map);
+
+    @GET("jsonApi")
+    Observable<TypeInfo> getTypeInfo(@QueryMap Map<String, String> map);
 
     // 品牌信息
     @GET("jsonApi")

@@ -15,8 +15,10 @@ import com.yaya.myvr.R;
 import com.yaya.myvr.adapter.HomeAdapter;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseFragment;
+import com.yaya.myvr.bean.DictInfo;
 import com.yaya.myvr.bean.HomeInfo;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
@@ -72,6 +74,7 @@ public class HomeFragment extends BaseFragment {
             private int firstVisiableItem = 0;
             // 透明状态
             private boolean isTransparent = true;
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -95,7 +98,7 @@ public class HomeFragment extends BaseFragment {
                     firstView.getLocationInWindow(location);
 
                     int currY = Math.abs(location[1]);
-                    LogUtils.e(TAG, "currY = " + currY);
+//                    LogUtils.e(TAG, "currY = " + currY);
                     if (currY <= BASE_Y) {
                         isTransparent = true;
                         int alpha = (int) (currY / BASE_Y * 255);
@@ -111,6 +114,7 @@ public class HomeFragment extends BaseFragment {
         });
 
         srlHome.setColorSchemeColors(getResources().getColor(R.color.top_nav_background));
+        srlHome.setProgressViewOffset(false, AppConst.SWIPE_START, AppConst.SWIPE_END);
         srlHome.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -141,9 +145,67 @@ public class HomeFragment extends BaseFragment {
      * 请求网络数据
      */
     private void requestData() {
+        // 刷新时避免重复请求
+        if (!AppConst.IS_DICT_REQUESTED) {
+            requestDict();
+        } else {
+            requestList();
+        }
+    }
+
+    /**
+     * 请求分类数据
+     */
+    private void requestDict() {
+        Map<String, String> dictMap = new HashMap<>();
+        dictMap.putAll(ApiConst.BASE_MAP);
+        dictMap.put("cmd", "getDict");
+
+        Subscription subscription = ApiManager.getInstance().getApiService().getDictInfo(dictMap)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<DictInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        LogUtils.e(TAG, "onCompleted...");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                        srlHome.setRefreshing(false);
+                        rlError.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onNext(DictInfo dictInfo) {
+                        LogUtils.e(TAG, "onNext... dictInfo = " + dictInfo);
+                        if (dictInfo != null && dictInfo.getErrCode() == 0) {
+                            AppConst.IS_DICT_REQUESTED = true;
+                            bindDictInfo(dictInfo);
+                            requestList();
+                        }
+                    }
+                });
+
+        subscriptionList.add(subscription);
+    }
+
+    private void bindDictInfo(DictInfo dictInfo) {
+        DictInfo.DataBean data = dictInfo.getData();
+        AppConst.DICT_AREA.addAll(data.getArea());
+        AppConst.DICT_CATEGORY.addAll(data.getCategory());
+        AppConst.DICT_FORMAT.addAll(data.getFormat());
+        AppConst.DICT_QUALITY.addAll(data.getQuality());
+    }
+
+    /**
+     * 请求列表数据
+     */
+    private void requestList() {
         map.putAll(ApiConst.BASE_MAP);
         map.put("cmd", "getIndex");
-
         Subscription subscription = ApiManager.getInstance().getApiService().getHomeInfo(map)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())

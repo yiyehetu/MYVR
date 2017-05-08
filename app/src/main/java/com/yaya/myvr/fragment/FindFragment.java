@@ -98,7 +98,6 @@ public class FindFragment extends BaseFragment {
                     requestData();
                 }
 
-
             }
 
             @Override

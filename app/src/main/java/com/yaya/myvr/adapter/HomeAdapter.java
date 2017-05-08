@@ -1,6 +1,7 @@
 package com.yaya.myvr.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,9 +15,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.TypeActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.HomeInfo;
 import com.yaya.myvr.util.ConvertUtils;
-import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.FixedGridView;
 
 import java.util.List;
@@ -63,7 +65,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     @Override
     public HomeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LogUtils.e(TAG, "onCreateViewHolder...");
+//        LogUtils.e(TAG, "onCreateViewHolder...");
         switch (viewType) {
             case HEADER:
                 View headerView = LayoutInflater.from(context).inflate(R.layout.item_home_header, parent, false);
@@ -115,7 +117,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     @Override
     public void onBindViewHolder(HomeHolder holder, int position) {
-        LogUtils.e(TAG, "onBindViewHolder...");
+//        LogUtils.e(TAG, "onBindViewHolder...");
         switch (getItemViewType(position)) {
             case HEADER:
                 bindHeader(holder);
@@ -136,7 +138,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         headerHolder.gvHeader.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(context, "positon:" + position + ",videoId:" + btnList.get(position).getCategory(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, TypeActivity.class);
+                intent.putExtra(AppConst.TYPE_POSITION, position);
+                context.startActivity(intent);
             }
         });
     }
@@ -184,11 +188,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
             public void onPageScrollStateChanged(int state) {
                 switch (state) {
                     case ViewPager.SCROLL_STATE_IDLE:
-                        LogUtils.e(TAG, "---->SCROLL_STATE_IDLE");
+//                        LogUtils.e(TAG, "---->SCROLL_STATE_IDLE");
                         isAutoIndex = true;
                         break;
                     case ViewPager.SCROLL_STATE_DRAGGING:
-                        LogUtils.e(TAG, "---->SCROLL_STATE_DRAGGING");
+//                        LogUtils.e(TAG, "---->SCROLL_STATE_DRAGGING");
                         isAutoIndex = false;
                         break;
                     case ViewPager.SCROLL_STATE_SETTLING:
@@ -215,15 +219,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long aLong) {
-                        LogUtils.e(TAG, "aLong = " + aLong);
-//                        if (isAutoIndex) {
+//                        LogUtils.e(TAG, "aLong = " + aLong);
                         int postion = (int) (currPostion + 1);
-                        LogUtils.e(TAG, "postion = " + postion);
+//                        LogUtils.e(TAG, "postion = " + postion);
                         headerHolder.vpHeader.setCurrentItem(postion);
                         int index = postion - postion / size * size;
-                        LogUtils.e(TAG, "index = " + index);
+//                        LogUtils.e(TAG, "index = " + index);
                         setIndex(headerHolder.llIndex, index);
-//                        }
                     }
                 });
     }

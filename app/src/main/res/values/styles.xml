@@ -28,4 +28,9 @@
         <!--隐藏启动变化-->
         <item name="android:windowBackground">@drawable/icon_welcome</item>
     </style>
+
+    <style name="CustomTabAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/textsize_13</item>
+    </style>
+
 </resources>

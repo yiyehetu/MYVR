@@ -1,13 +1,17 @@
 package com.yaya.myvr.activity;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yaya.myvr.R;
@@ -29,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -48,6 +53,10 @@ public class BrandDetailActivity extends BaseActivity {
     TextView tvTitle;
     @BindView(R.id.ll_brand)
     LinearLayout llBrand;
+    @BindView(R.id.srl_brand)
+    SwipeRefreshLayout srlBrand;
+    @BindView(R.id.rl_error)
+    RelativeLayout rlError;
 
     private static final String TAG = BrandDetailActivity.class.getSimpleName();
     private Map<String, String> topMap = new HashMap<>();
@@ -108,16 +117,29 @@ public class BrandDetailActivity extends BaseActivity {
             }
         });
 
+        srlBrand.setColorSchemeColors(getResources().getColor(R.color.top_nav_background));
+        srlBrand.setProgressViewOffset(false, AppConst.SWIPE_START, AppConst.SWIPE_END);
+        srlBrand.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressLint("NewApi")
+            @Override
+            public void onGlobalLayout() {
+                srlBrand.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                srlBrand.setRefreshing(true);
+                requestData();
+            }
+        });
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initData();
     }
 
-    private void initData() {
+    private void requestData() {
         String brandId = getIntent().getStringExtra(AppConst.BRAND_ID);
+        String brandName = getIntent().getStringExtra(AppConst.BRAND_NAME);
+        tvTitle.setText(brandName);
         LogUtils.e(TAG, "brandId = " + brandId);
 
         topMap.putAll(ApiConst.BASE_MAP);
@@ -144,16 +166,25 @@ public class BrandDetailActivity extends BaseActivity {
                     @Override
                     public void onCompleted() {
                         LogUtils.e(TAG, "onCompleted...");
+                        srlBrand.setRefreshing(false);
+                        srlBrand.setEnabled(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                        srlBrand.setRefreshing(false);
+                        rlError.setVisibility(View.VISIBLE);
+                        llBrand.setBackgroundColor(Color.argb(255, 47, 79, 79));
                     }
 
                     @Override
                     public void onNext(BrandTopInfo brandTopInfo) {
                         LogUtils.e(TAG, "onNext... brandTopInfo = " + brandTopInfo);
+                        if (rlError.isShown()) {
+                            rlError.setVisibility(View.GONE);
+                            llBrand.setBackgroundColor(Color.argb(0, 47, 79, 79));
+                        }
                         bindTopData(brandTopInfo);
                     }
                 });
@@ -166,7 +197,9 @@ public class BrandDetailActivity extends BaseActivity {
      */
     private void bindTopData(BrandTopInfo brandTopInfo) {
         if (brandTopInfo != null && brandTopInfo.getErrCode() == 0) {
-            brandDetailAdapter = new BrandDetailAdapter(brandTopInfo.getData(), bottomData, this);
+            BrandTopInfo.DataBean topData = brandTopInfo.getData();
+            tvTitle.setText(topData.getName());
+            brandDetailAdapter = new BrandDetailAdapter(topData, bottomData, this);
             rvBrand.setAdapter(brandDetailAdapter);
 
             requestBottomData();
@@ -216,5 +249,17 @@ public class BrandDetailActivity extends BaseActivity {
         } else {
 
         }
+    }
+
+    @OnClick(R.id.iv_back)
+    void back(){
+        finish();
+    }
+
+    @OnClick(R.id.rl_error)
+    void reLoad() {
+        srlBrand.setRefreshing(true);
+        rlError.setVisibility(View.GONE);
+        requestData();
     }
 }

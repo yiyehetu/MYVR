@@ -143,9 +143,9 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
         }
 
         holder.tvTitle.setText(bean.getTitle());
-        holder.tvActor.setText(bean.getActor());
+        holder.tvActor.setText("主演:" + bean.getActor());
         holder.tvContent.setText(bean.getProfile());
-        holder.tvScore.setText(bean.getScore());
+        holder.tvScore.setText(bean.getScore() + ".0");
     }
 
     @Override

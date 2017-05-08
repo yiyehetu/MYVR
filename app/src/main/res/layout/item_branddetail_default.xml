@@ -40,6 +40,9 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxEms="10"
+            android:maxLines="1"
             android:text="FANC球迷"
             android:textColor="@color/black"
             android:textSize="@dimen/textsize_16" />
@@ -49,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_title"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="未知"
             android:textColor="@color/gray"
             android:textSize="@dimen/textsize_14" />
@@ -59,7 +62,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_actor"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:maxEms="15"
+            android:maxLines="1"
             android:text="FANC球迷"
             android:textColor="@color/gray"
             android:textSize="@dimen/textsize_14" />

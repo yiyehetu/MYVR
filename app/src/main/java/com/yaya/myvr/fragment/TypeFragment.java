@@ -53,6 +53,8 @@ public class TypeFragment extends BaseFragment {
     private String tag;
     private TypeAdapter typeAdapter;
     private List<TypeInfo.DataBean> datalist;
+    private GridLayoutManager layoutManager;
+    private boolean isBottom = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,15 +78,56 @@ public class TypeFragment extends BaseFragment {
         }
 
 //        Log.e(TAG, this.hashCode() + "initView..." + currPostion);
-        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        layoutManager = new GridLayoutManager(getContext(), 2);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                // size一共为2
+                switch (typeAdapter.getItemViewType(position)) {
+                    case TypeAdapter.FOOTER:
+                        return 2;
+                    default:
+                        return 1;
+                }
+            }
+        });
+
         rlType.setLayoutManager(layoutManager);
         rlType.addItemDecoration(new RecyclerViewGridDivider(getContext()));
+        rlType.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int lastVisiableItem;
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(isBottom){
+                    return;
+                }
+
+                if (typeAdapter == null) {
+                    return;
+                }
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem + 1 == typeAdapter.getItemCount()) {
+                    // 滑动到底部
+                    requestData();
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                lastVisiableItem = layoutManager.findLastVisibleItemPosition();
+            }
+        });
 
         srlType.setColorSchemeColors(getResources().getColor(R.color.top_nav_background));
         srlType.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                // reset
                 currStart = 0;
+                isBottom = false;
                 requestData();
             }
         });
@@ -108,11 +151,16 @@ public class TypeFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
 //        LogUtils.e(TAG, this.hashCode() + "isVisibleToUser = " + isVisibleToUser);
-        if (getUserVisibleHint() && isViewInited && !isDataLoaded) {
+        if (!getUserVisibleHint()) {
+            return;
+        }
+
+        // 位于当前
+        if (isViewInited && !isDataLoaded) {
             lazyLoadData();
         }
 
-        if (getUserVisibleHint() && datalist != null && !datalist.isEmpty()) {
+        if (datalist != null && !datalist.isEmpty()) {
             EventBus.getDefault().post(new AppEvent("type_first_pic", datalist.get(0).getPicture()));
         }
     }
@@ -132,7 +180,6 @@ public class TypeFragment extends BaseFragment {
         requestData();
 
         LogUtils.e(TAG, Log.e(TAG, this.hashCode() + "lazyLoadData..." + currPostion));
-
     }
 
     /**
@@ -149,9 +196,6 @@ public class TypeFragment extends BaseFragment {
                     @Override
                     public void onCompleted() {
                         LogUtils.e(TAG, "onCompleted...");
-                        if (currStart == 0) {
-                            srlType.setRefreshing(false);
-                        }
                     }
 
                     @Override
@@ -165,8 +209,11 @@ public class TypeFragment extends BaseFragment {
                     @Override
                     public void onNext(TypeInfo typeInfo) {
                         LogUtils.e(TAG, "onNext... typeInfo = " + typeInfo);
-                        if (currStart == 0 && pbType.isShown()) {
-                            pbType.setVisibility(View.GONE);
+                        if (currStart == 0) {
+                            if (pbType.isShown()) {
+                                pbType.setVisibility(View.GONE);
+                            }
+                            srlType.setRefreshing(false);
                         }
 
                         bindData(typeInfo);
@@ -183,13 +230,30 @@ public class TypeFragment extends BaseFragment {
      */
     private void bindData(TypeInfo typeInfo) {
         if (typeInfo != null && typeInfo.getErrCode() == 0) {
+            List<TypeInfo.DataBean> datas = typeInfo.getData();
+            if (datas.isEmpty()) {
+                LogUtils.e(TAG, "datas = 沒有數據了");
+                // 刷新最后一项
+                isBottom = true;
+                typeAdapter.setBottomFlag(true);
+                typeAdapter.notifyItemChanged(typeAdapter.getItemCount() - 1);
+                return;
+            }
+
             if (currStart == 0) {
-                datalist = typeInfo.getData();
+                datalist = datas;
+                // 第一次加载数据发送图片url
+                if (datalist != null && !datalist.isEmpty()) {
+                    EventBus.getDefault().post(new AppEvent("type_first_pic", datalist.get(0).getPicture()));
+                }
+
                 typeAdapter = new TypeAdapter(getContext(), datalist);
                 rlType.setAdapter(typeAdapter);
             } else {
-
+                datalist.addAll(datas);
+                typeAdapter.notifyDataSetChanged();
             }
+            currStart += 20;
         }
     }
 

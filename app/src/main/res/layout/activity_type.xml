@@ -63,7 +63,8 @@
             android:id="@+id/abl_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/transparent">
+            android:background="@color/transparent"
+            app:elevation="0dp">
 
             <View
                 android:layout_width="match_parent"
@@ -75,12 +76,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="@color/white"
-                app:tabIndicatorHeight="3dp"
                 app:tabIndicatorColor="@color/colorPrimary"
+                app:tabIndicatorHeight="3dp"
                 app:tabMaxWidth="65dp"
-                app:tabTextAppearance="@style/CustomTabAppearance"
+                app:tabMode="scrollable"
                 app:tabSelectedTextColor="@color/colorPrimary"
-                app:tabMode="scrollable" />
+                app:tabTextAppearance="@style/CustomTabAppearance" />
 
         </android.support.design.widget.AppBarLayout>
 

@@ -20,9 +20,12 @@ import java.util.List;
  */
 
 public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
+    public static final int FOOTER = 100;
+    public static final int DEFAULT = 101;
     private Context context;
     private LayoutInflater layoutInflater;
     private List<TypeInfo.DataBean> dataList;
+    private boolean isBottom = false;
 
     public TypeAdapter(Context context, List<TypeInfo.DataBean> dataList) {
         this.context = context;
@@ -32,17 +35,44 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
 
     @Override
     public TypeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.item_type_viewshow, parent, false);
-        TypeHolder typeHolder = new TypeHolder(itemView);
-        typeHolder.ivPic = (ImageView) itemView.findViewById(R.id.iv_pic);
-        typeHolder.tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
-        typeHolder.tvSum = (TextView) itemView.findViewById(R.id.tv_sum);
-        typeHolder.tvMark = (TextView) itemView.findViewById(R.id.tv_mark);
-        return typeHolder;
+        switch (viewType) {
+            case FOOTER:
+                View footerView = LayoutInflater.from(context).inflate(R.layout.item_find_bottom, parent, false);
+                TypeHolder footerHolder = new TypeHolder(footerView);
+                footerHolder.tvBottom = (TextView) footerView;
+                return footerHolder;
+            default:
+                View itemView = layoutInflater.inflate(R.layout.item_type_viewshow, parent, false);
+                TypeHolder typeHolder = new TypeHolder(itemView);
+                typeHolder.ivPic = (ImageView) itemView.findViewById(R.id.iv_pic);
+                typeHolder.tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
+                typeHolder.tvSum = (TextView) itemView.findViewById(R.id.tv_sum);
+                typeHolder.tvMark = (TextView) itemView.findViewById(R.id.tv_mark);
+                return typeHolder;
+        }
     }
 
     @Override
     public void onBindViewHolder(TypeHolder holder, int position) {
+        switch (getItemViewType(position)) {
+            case FOOTER :
+                bindFooter(holder);
+                break;
+            case DEFAULT:
+                bindDefault(holder, position);
+                break;
+        }
+    }
+
+    private void bindFooter(TypeHolder holder) {
+        if(isBottom){
+            holder.tvBottom.setText("");
+        }else{
+            holder.tvBottom.setText("正在拼命加载中...");
+        }
+    }
+
+    private void bindDefault(TypeHolder holder, int position) {
         TypeInfo.DataBean bean = dataList.get(position);
         Glide.with(context)
                 .load(bean.getPicture())
@@ -63,7 +93,20 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
 
     @Override
     public int getItemCount() {
-        return dataList.size();
+        return dataList.size() + 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == dataList.size()) {
+            return FOOTER;
+        } else {
+            return DEFAULT;
+        }
+    }
+
+    public void setBottomFlag(boolean bottomFlag) {
+        this.isBottom = bottomFlag;
     }
 
     static class TypeHolder extends RecyclerView.ViewHolder {
@@ -71,6 +114,8 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
         TextView tvTitle;
         TextView tvSum;
         TextView tvMark;
+
+        TextView tvBottom;
 
         public TypeHolder(View itemView) {
             super(itemView);

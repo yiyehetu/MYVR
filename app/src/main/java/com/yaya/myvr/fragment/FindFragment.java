@@ -182,10 +182,10 @@ public class FindFragment extends BaseFragment {
                     @Override
                     public void onNext(FindInfo findInfo) {
                         LogUtils.e(TAG, "onNext... findInfo = " + findInfo);
-                        if (currStart == 0 && rlError.isShown()) {
-                            rlError.setVisibility(View.GONE);
-                        }
                         if (currStart == 0) {
+                            if (rlError.isShown()) {
+                                rlError.setVisibility(View.GONE);
+                            }
                             srlFind.setRefreshing(false);
                         }
                         bindData(findInfo);

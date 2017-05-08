@@ -74,6 +74,10 @@ public class HomeFragment extends BaseFragment {
             private int firstVisiableItem = 0;
             // 透明状态
             private boolean isTransparent = true;
+            // 顶部View
+            private View firstView = null;
+            // 位置存储
+            private int[] location = new int[2];
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -87,29 +91,34 @@ public class HomeFragment extends BaseFragment {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 firstVisiableItem = layoutManager.findFirstVisibleItemPosition();
-                if (firstVisiableItem != 0 && homeAdapter != null) {
+                if (firstVisiableItem != 0) {
+                    return;
+                }
+
+                // 位于顶部
+                // 设置自动轮播
+                if (homeAdapter != null) {
                     homeAdapter.setAutoIndex(false);
                 }
 
                 // 顶部渐变
-                if (firstVisiableItem == 0) {
-                    View firstView = layoutManager.findViewByPosition(0);
-                    int[] location = new int[2];
-                    firstView.getLocationInWindow(location);
-
-                    int currY = Math.abs(location[1]);
+                if (firstView == null) {
+                    firstView = layoutManager.findViewByPosition(0);
+                }
+                firstView.getLocationInWindow(location);
+                int currY = Math.abs(location[1]);
 //                    LogUtils.e(TAG, "currY = " + currY);
-                    if (currY <= BASE_Y) {
-                        isTransparent = true;
-                        int alpha = (int) (currY / BASE_Y * 255);
-                        rlSearch.setBackgroundColor(Color.argb(alpha, 47, 79, 79));
-                    } else {
-                        if (isTransparent) {
-                            rlSearch.setBackgroundColor(Color.argb(255, 47, 79, 79));
-                            isTransparent = false;
-                        }
+                if (currY <= BASE_Y) {
+                    isTransparent = true;
+                    int alpha = (int) (currY / BASE_Y * 255);
+                    rlSearch.setBackgroundColor(Color.argb(alpha, 47, 79, 79));
+                } else {
+                    if (isTransparent) {
+                        rlSearch.setBackgroundColor(Color.argb(255, 47, 79, 79));
+                        isTransparent = false;
                     }
                 }
+
             }
         });
 

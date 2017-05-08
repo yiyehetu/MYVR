@@ -26,7 +26,7 @@ import java.util.Map;
 public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
     private static final String TAG = FindAdapter.class.getSimpleName();
     private static final int DEFAULT = 101;
-    private static final int BOTTOM = 102;
+    private static final int FOOTER = 102;
     private List<FindInfo.DataBean> findList;
     private Context context;
     private Map<Integer, Brand> brandMap;
@@ -43,7 +43,12 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
     @Override
     public FindHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
-            case DEFAULT:
+            case FOOTER:
+                View footerView = LayoutInflater.from(context).inflate(R.layout.item_find_bottom, parent, false);
+                FindHolder footerHolder = new FindHolder(footerView);
+                footerHolder.tvBottom = (TextView) footerView;
+                return footerHolder;
+            default:
                 View defaultView = LayoutInflater.from(context).inflate(R.layout.item_find_default, parent, false);
                 FindHolder defaultHolder = new FindHolder(defaultView);
                 defaultHolder.ivPic = (ImageView) defaultView.findViewById(R.id.iv_pic);
@@ -53,11 +58,6 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
                 defaultHolder.tvName = (TextView) defaultView.findViewById(R.id.tv_name);
                 defaultHolder.tvTimes = (TextView) defaultView.findViewById(R.id.tv_times);
                 return defaultHolder;
-            default:
-                View bottomView = LayoutInflater.from(context).inflate(R.layout.item_find_bottom, parent, false);
-                FindHolder bottomHolder = new FindHolder(bottomView);
-                bottomHolder.tvBottom = (TextView) bottomView;
-                return bottomHolder;
         }
 
     }
@@ -68,7 +68,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
             case DEFAULT:
                 bindDefault(holder, position);
                 break;
-            case BOTTOM:
+            case FOOTER:
                 bindBottom(holder);
                 break;
         }
@@ -120,7 +120,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
         if (position < findList.size()) {
             return DEFAULT;
         } else {
-            return BOTTOM;
+            return FOOTER;
         }
     }
 

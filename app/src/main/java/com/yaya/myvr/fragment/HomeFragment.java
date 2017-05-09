@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.SearchActivity;
 import com.yaya.myvr.adapter.HomeAdapter;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
@@ -26,6 +27,7 @@ import com.yaya.myvr.widget.RecyclerViewDivider;
 import com.yaya.myvr.widget.VpSwipeRefreshLayout;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -201,10 +203,27 @@ public class HomeFragment extends BaseFragment {
 
     private void bindDictInfo(DictInfo dictInfo) {
         DictInfo.DataBean data = dictInfo.getData();
-        AppConst.DICT_AREA.addAll(data.getArea());
+        // 种类
         AppConst.DICT_CATEGORY.addAll(data.getCategory());
-        AppConst.DICT_FORMAT.addAll(data.getFormat());
-        AppConst.DICT_QUALITY.addAll(data.getQuality());
+        // 地区
+        List<DictInfo.DataBean.AreaBean> areaList = data.getArea();
+        for (int i = 0; i < areaList.size(); i++) {
+            DictInfo.DataBean.AreaBean bean = areaList.get(i);
+            AppConst.DICT_AREA.put(bean.getId(), bean.getName());
+        }
+        // 格式
+        List<DictInfo.DataBean.FormatBean> formatList = data.getFormat();
+        for (int i = 0; i < formatList.size(); i++) {
+            DictInfo.DataBean.FormatBean bean = formatList.get(i);
+            AppConst.DICT_FORMAT.put(bean.getId(), bean.getName());
+        }
+        AppConst.DICT_FORMAT.put("4", "VR");
+        // 质量
+        List<DictInfo.DataBean.QualityBean> qualityList = data.getQuality();
+        for (int i = 0; i < qualityList.size(); i++) {
+            DictInfo.DataBean.QualityBean bean = qualityList.get(i);
+            AppConst.DICT_QUALITY.put(bean.getId(), bean.getName());
+        }
     }
 
     /**
@@ -267,7 +286,7 @@ public class HomeFragment extends BaseFragment {
 
     @OnClick(R.id.ll_search)
     void clickSearch() {
-        Toast.makeText(getContext(), "click search...", Toast.LENGTH_SHORT).show();
+        startActivity(SearchActivity.class);
     }
 
     @OnClick(R.id.iv_search)

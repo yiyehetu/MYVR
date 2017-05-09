@@ -116,7 +116,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/linearLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
@@ -203,10 +202,10 @@
         android:layout_below="@id/tv_brief"
         android:layout_marginTop="1dp"
         android:background="@color/white"
-        android:paddingBottom="15dp"
+        android:paddingBottom="10dp"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
-        android:paddingTop="15dp">
+        android:paddingTop="10dp">
 
         <TextView
             android:id="@+id/tv_year"
@@ -221,7 +220,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_year"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:text="地区 : ----"
             android:textColor="@color/black"
             android:textSize="@dimen/textsize_14" />
@@ -231,19 +230,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_area"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:text="演员 : ----"
             android:textColor="@color/black"
             android:textSize="@dimen/textsize_14" />
 
         <TextView
-            android:maxLines="5"
-            android:ellipsize="end"
             android:id="@+id/tv_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_actor"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="5"
             android:text="----"
             android:textColor="@color/gray"
             android:textSize="@dimen/textsize_14" />
@@ -263,19 +262,42 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_duration"
             android:layout_marginLeft="180dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:text="格式 : ----"
             android:textColor="@color/black"
             android:textSize="@dimen/textsize_14" />
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/rl_load"
+    <TextView
+        android:id="@+id/tv_relative"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@id/rl_show2"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:drawableLeft="@drawable/home_item_text_left"
+        android:drawablePadding="5dp"
+        android:gravity="center_vertical"
+        android:text="相关"
+        android:textColor="@color/black"
+        android:textSize="@dimen/textsize_16" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_relative"
         android:background="@color/white"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_relative"
+        android:layout_marginTop="1dp" />
+
+    <RelativeLayout
+        android:id="@+id/rl_load"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/rl_nav">
+        android:layout_below="@id/rl_nav"
+        android:background="@color/white">
 
         <ProgressBar
             android:id="@+id/pb_video"

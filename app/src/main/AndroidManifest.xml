@@ -25,7 +25,8 @@
         </activity>
         <activity android:name=".activity.BrandDetailActivity" />
         <activity android:name=".activity.TypeActivity" />
-        <activity android:name=".activity.VideoInfoActivity"></activity>
+        <activity android:name=".activity.VideoInfoActivity" />
+        <activity android:name=".activity.SearchActivity"></activity>
     </application>
 
 </manifest>

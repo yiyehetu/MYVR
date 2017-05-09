@@ -1,7 +1,11 @@
 package com.yaya.myvr.activity;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatRatingBar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -10,12 +14,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.adapter.VideoInfoAdapter;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
 import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseActivity;
+import com.yaya.myvr.bean.RelativeInfo;
 import com.yaya.myvr.bean.VideoInfo;
+import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
+import com.yaya.myvr.widget.RecyclerViewDivider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +34,8 @@ import butterknife.OnClick;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 /**
  * 视频信息界面
@@ -69,6 +79,8 @@ public class VideoInfoActivity extends BaseActivity {
     TextView tvPlaytimes;
     @BindView(R.id.rl_load)
     RelativeLayout rlLoad;
+    @BindView(R.id.rv_relative)
+    RecyclerView rvRelative;
 
     private String videoId;
 
@@ -79,7 +91,12 @@ public class VideoInfoActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rvRelative.setLayoutManager(layoutManager);
+        RecyclerViewDivider divider = new RecyclerViewDivider(new ColorDrawable(Color.WHITE), LinearLayoutManager.HORIZONTAL);
+        divider.setWidth(ConvertUtils.dp2px(getContext(), 2.0f));
+        rvRelative.addItemDecoration(divider);
     }
 
     @Override
@@ -94,6 +111,7 @@ public class VideoInfoActivity extends BaseActivity {
         LogUtils.e(TAG, "videoId = " + videoId);
 
         requestVideoInfoData();
+        requestRelativeInfoData();
     }
 
     private void requestVideoInfoData() {
@@ -110,7 +128,6 @@ public class VideoInfoActivity extends BaseActivity {
                     @Override
                     public void onCompleted() {
                         LogUtils.e(TAG, "onCompleted...");
-                        rlLoad.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -143,23 +160,66 @@ public class VideoInfoActivity extends BaseActivity {
                         .crossFade()
                         .into(ivPic);
                 tvTitle.setText(bean.getTitle());
+                tvMark.setText(AppConst.DICT_QUALITY.get(bean.getQuality()));
                 float score = Float.valueOf(bean.getScore());
                 rbScore.setRating(5 * score / 10.0f);
                 tvScore.setText(score + "");
                 tvPlaytimes.setText(bean.getPlayTimes() + "次播放");
                 tvYear.setText("年代 : " + bean.getYear());
-                tvArea.setText("地区 : " + bean.getArea());
+                tvArea.setText("地区 : " + AppConst.DICT_AREA.get(bean.getArea()));
                 tvActor.setText("演员 : " + bean.getActor());
                 tvDuration.setText("片长 : " + bean.getDuration());
+                tvFormat.setText("格式 : " + AppConst.DICT_FORMAT.get(bean.getFormat()));
                 tvProfile.setText(bean.getProfile());
             }
         }
     }
 
+    private void requestRelativeInfoData() {
+        Map<String, String> map = new HashMap<>();
+        map.putAll(ApiConst.BASE_MAP);
+        map.put("cmd", "getVideoRelative");
+        map.put("id", videoId);
+
+        ApiManager.getInstance().getApiService().getRelativeInfo(map)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<RelativeInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        LogUtils.e(TAG, "onCompleted...");
+                        rlLoad.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(RelativeInfo relativeInfo) {
+                        LogUtils.e(TAG, "onNext... relativeInfo = " + relativeInfo);
+                        bindRelativeInfoData(relativeInfo);
+                    }
+                });
+    }
+
+    private void bindRelativeInfoData(RelativeInfo relativeInfo) {
+        if (relativeInfo != null && relativeInfo.getErrCode() == 0) {
+            List<RelativeInfo.DataBean> data = relativeInfo.getData();
+            if (!data.isEmpty()) {
+                rvRelative.setAdapter(new VideoInfoAdapter(data, this));
+            }
+        }
+    }
+
+
     @OnClick({R.id.iv_back, R.id.iv_download, R.id.iv_like, R.id.ll_play})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
+                finish();
                 break;
             case R.id.iv_download:
                 break;

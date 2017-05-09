@@ -70,7 +70,7 @@ public class HomeGridAdapter2 extends BaseAdapter {
 
 
         String format = bean.getFormat();
-        if ("3".equals(format)) {
+        if ("3".equals(format) || "4".equals(format)) {
             holder.tvMark.setText("360");
         } else {
             holder.tvMark.setText("3D");

@@ -4,7 +4,9 @@ import com.yaya.myvr.bean.DictInfo;
 import com.yaya.myvr.util.ConvertUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by admin on 2017/5/3.
@@ -21,10 +23,11 @@ public class AppConst {
     public static final int SWIPE_START = ConvertUtils.dp2px(VRApp.getAppInstance().getApplicationContext(), 20);
     public static final int SWIPE_END = ConvertUtils.dp2px(VRApp.getAppInstance().getApplicationContext(), 92);
 
-    public static final List<DictInfo.DataBean.AreaBean> DICT_AREA = new ArrayList<>();
+
+    public static final Map<String, String> DICT_AREA = new HashMap<>();
+    public static final Map<String, String> DICT_FORMAT = new HashMap<>();
+    public static final Map<String, String> DICT_QUALITY = new HashMap<>();
     public static final List<DictInfo.DataBean.CategoryBean> DICT_CATEGORY = new ArrayList<>();
-    public static final List<DictInfo.DataBean.FormatBean> DICT_FORMAT = new ArrayList<>();
-    public static final List<DictInfo.DataBean.QualityBean> DICT_QUALITY = new ArrayList<>();
 
 
     public static boolean IS_DICT_REQUESTED = false;

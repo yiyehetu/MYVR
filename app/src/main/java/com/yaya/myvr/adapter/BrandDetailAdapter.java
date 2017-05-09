@@ -79,7 +79,7 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
                 defaultHolder.tvTitle = (TextView) defaultView.findViewById(R.id.tv_title);
                 defaultHolder.tvActor = (TextView) defaultView.findViewById(R.id.tv_actor);
                 defaultHolder.tvContent = (TextView) defaultView.findViewById(R.id.tv_content);
-                defaultHolder.tvScore= (TextView) defaultView.findViewById(R.id.tv_score);
+                defaultHolder.tvScore = (TextView) defaultView.findViewById(R.id.tv_score);
                 return defaultHolder;
         }
     }
@@ -127,10 +127,11 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
 
     /**
      * 绑定底部数据
+     *
      * @param holder
      * @param position
      */
-    private void bindDefault(BrandDetailHolder holder, int position){
+    private void bindDefault(BrandDetailHolder holder, int position) {
         final BrandBottomInfo.DataBean bean = bottomData.get(position - 1);
         Glide.with(context)
                 .load(bean.getPicture())
@@ -139,7 +140,7 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
                 .crossFade()
                 .into(holder.ivPic);
         String format = bean.getFormat();
-        if ("3".equals(format)) {
+        if ("3".equals(format) || "4".equals(format)) {
             holder.tvMark.setText("360");
         } else {
             holder.tvMark.setText("3D");

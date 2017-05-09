@@ -1,6 +1,7 @@
 package com.yaya.myvr.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.VideoInfoActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.TypeInfo;
 
 import java.util.List;
@@ -48,6 +51,7 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
                 typeHolder.tvTitle = (TextView) itemView.findViewById(R.id.tv_title);
                 typeHolder.tvSum = (TextView) itemView.findViewById(R.id.tv_sum);
                 typeHolder.tvMark = (TextView) itemView.findViewById(R.id.tv_mark);
+
                 return typeHolder;
         }
     }
@@ -55,7 +59,7 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
     @Override
     public void onBindViewHolder(TypeHolder holder, int position) {
         switch (getItemViewType(position)) {
-            case FOOTER :
+            case FOOTER:
                 bindFooter(holder);
                 break;
             case DEFAULT:
@@ -65,15 +69,17 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
     }
 
     private void bindFooter(TypeHolder holder) {
-        if(isBottom){
+        if (isBottom) {
             holder.tvBottom.setText("");
-        }else{
+        } else if (dataList.size() >= 20) {
             holder.tvBottom.setText("正在拼命加载中...");
+        } else {
+            holder.tvBottom.setText("");
         }
     }
 
     private void bindDefault(TypeHolder holder, int position) {
-        TypeInfo.DataBean bean = dataList.get(position);
+        final TypeInfo.DataBean bean = dataList.get(position);
         Glide.with(context)
                 .load(bean.getPicture())
                 .placeholder(R.drawable.icon_placeholder)
@@ -89,6 +95,15 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
         } else {
             holder.tvMark.setText("3D");
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, VideoInfoActivity.class);
+                intent.putExtra(AppConst.VIDEO_ID, bean.getId());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -110,6 +125,7 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
     }
 
     static class TypeHolder extends RecyclerView.ViewHolder {
+        View itemView;
         ImageView ivPic;
         TextView tvTitle;
         TextView tvSum;
@@ -119,6 +135,7 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.TypeHolder> {
 
         public TypeHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
         }
     }
 }

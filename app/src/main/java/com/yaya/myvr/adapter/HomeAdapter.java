@@ -11,11 +11,11 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
 import com.yaya.myvr.activity.TypeActivity;
+import com.yaya.myvr.activity.VideoInfoActivity;
 import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.HomeInfo;
 import com.yaya.myvr.util.ConvertUtils;
@@ -250,12 +250,15 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         final HomeInfo.DataBean.HomeListBean bean = homeList.get(0);
         holder.tvTitle.setText(bean.getTitle());
         holder.tvType.setText(bean.getTitle2());
-        holder.gvRecommend.setAdapter(new HomeGridAdapter2(context, bean.getList()));
+        final List<HomeInfo.DataBean.HomeListBean.ListBean> list = bean.getList();
+        holder.gvRecommend.setAdapter(new HomeGridAdapter2(context, list));
 
         holder.gvRecommend.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(context, "positon:" + position + ",videoId:" + bean.getList().get(position).getVideoId(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, VideoInfoActivity.class);
+                intent.putExtra(AppConst.VIDEO_ID, list.get(position).getVideoId());
+                context.startActivity(intent);
             }
         });
     }
@@ -265,11 +268,15 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         final HomeInfo.DataBean.HomeListBean bean = homeList.get(position);
         holder.tvTitle.setText(bean.getTitle());
         holder.tvType.setText(bean.getTitle2());
-        holder.gvDefault.setAdapter(new HomeGridAdapter2(context, bean.getList()));
+        final List<HomeInfo.DataBean.HomeListBean.ListBean> list = bean.getList();
+        holder.gvDefault.setAdapter(new HomeGridAdapter2(context, list));
+
         holder.gvDefault.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(context, "positon:" + position + ",videoId:" + bean.getList().get(position).getVideoId(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, VideoInfoActivity.class);
+                intent.putExtra(AppConst.VIDEO_ID, list.get(position).getVideoId());
+                context.startActivity(intent);
             }
         });
     }

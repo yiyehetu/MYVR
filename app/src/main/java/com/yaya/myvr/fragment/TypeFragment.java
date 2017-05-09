@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -21,6 +20,7 @@ import com.yaya.myvr.widget.RecyclerViewGridDivider;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class TypeFragment extends BaseFragment {
     private String cate;
     private String tag;
     private TypeAdapter typeAdapter;
-    private List<TypeInfo.DataBean> datalist;
+    private List<TypeInfo.DataBean> datalist = new ArrayList<>();
     private GridLayoutManager layoutManager;
     private boolean isBottom = false;
 
@@ -100,7 +100,7 @@ public class TypeFragment extends BaseFragment {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if(isBottom){
+                if (isBottom) {
                     return;
                 }
 
@@ -178,8 +178,7 @@ public class TypeFragment extends BaseFragment {
         map.put("tag", tag);
 
         requestData();
-
-        LogUtils.e(TAG, Log.e(TAG, this.hashCode() + "lazyLoadData..." + currPostion));
+//        LogUtils.e(TAG, Log.e(TAG, this.hashCode() + "lazyLoadData..." + currPostion));
     }
 
     /**
@@ -235,24 +234,23 @@ public class TypeFragment extends BaseFragment {
                 LogUtils.e(TAG, "datas = 沒有數據了");
                 // 刷新最后一项
                 isBottom = true;
-                typeAdapter.setBottomFlag(true);
-                typeAdapter.notifyItemChanged(typeAdapter.getItemCount() - 1);
+                if (typeAdapter != null) {
+                    typeAdapter.setBottomFlag(true);
+                    typeAdapter.notifyItemChanged(typeAdapter.getItemCount() - 1);
+                }
                 return;
             }
 
+            datalist.addAll(datas);
             if (currStart == 0) {
-                datalist = datas;
                 // 第一次加载数据发送图片url
-                if (datalist != null && !datalist.isEmpty()) {
-                    EventBus.getDefault().post(new AppEvent("type_first_pic", datalist.get(0).getPicture()));
-                }
-
+                EventBus.getDefault().post(new AppEvent("type_first_pic", datalist.get(0).getPicture()));
                 typeAdapter = new TypeAdapter(getContext(), datalist);
                 rlType.setAdapter(typeAdapter);
             } else {
-                datalist.addAll(datas);
                 typeAdapter.notifyDataSetChanged();
             }
+
             currStart += 20;
         }
     }

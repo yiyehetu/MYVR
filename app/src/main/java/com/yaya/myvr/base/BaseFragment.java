@@ -87,6 +87,12 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         RxManager.unsubscribe(subscriptionList);
     }
+
 }

@@ -15,6 +15,7 @@ public class AppConst {
     public static final String LOOP_TITLE = "loop_title";
     public static final String LOOP_ID = "loop_id";
     public static final String BRAND_ID = "brand_id";
+    public static final String VIDEO_ID = "video_id";
 
     public static final String BRAND_NAME = "brand_name";
     public static final int SWIPE_START = ConvertUtils.dp2px(VRApp.getAppInstance().getApplicationContext(), 20);

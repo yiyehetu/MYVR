@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 /**
  * 分类展示页面
@@ -119,5 +120,10 @@ public class TypeActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @OnClick(R.id.iv_back)
+    void back() {
+        finish();
     }
 }

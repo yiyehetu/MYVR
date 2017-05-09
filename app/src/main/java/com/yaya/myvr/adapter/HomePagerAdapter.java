@@ -1,16 +1,18 @@
 package com.yaya.myvr.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.VideoInfoActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.HomeInfo;
 
 import java.util.List;
@@ -61,7 +63,9 @@ public class HomePagerAdapter extends PagerAdapter {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, ",videoId:" + bean.getVideoId(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, VideoInfoActivity.class);
+                intent.putExtra(AppConst.VIDEO_ID, bean.getVideoId());
+                context.startActivity(intent);
             }
         });
         return itemView;

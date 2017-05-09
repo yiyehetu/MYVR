@@ -75,7 +75,6 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandHolder>
                 Intent intent = new Intent(context, BrandDetailActivity.class);
                 intent.putExtra(AppConst.BRAND_ID, bean.getId());
                 intent.putExtra(AppConst.BRAND_NAME, bean.getName());
-
                 context.startActivity(intent);
             }
 

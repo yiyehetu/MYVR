@@ -103,12 +103,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        RxManager.unsubscribe(subscriptionList);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        RxManager.unsubscribe(subscriptionList);
         // 移除Activity
         AppManager.getInstance().finishActivity(this);
     }

@@ -1,6 +1,7 @@
 package com.yaya.myvr.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.VideoInfoActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.BrandBottomInfo;
 import com.yaya.myvr.bean.BrandTopInfo;
 import com.yaya.myvr.util.ConvertUtils;
@@ -128,7 +131,7 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
      * @param position
      */
     private void bindDefault(BrandDetailHolder holder, int position){
-        BrandBottomInfo.DataBean bean = bottomData.get(position - 1);
+        final BrandBottomInfo.DataBean bean = bottomData.get(position - 1);
         Glide.with(context)
                 .load(bean.getPicture())
                 .placeholder(R.drawable.icon_placeholder)
@@ -146,6 +149,15 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
         holder.tvActor.setText("主演:" + bean.getActor());
         holder.tvContent.setText(bean.getProfile());
         holder.tvScore.setText(bean.getScore() + ".0");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, VideoInfoActivity.class);
+                intent.putExtra(AppConst.VIDEO_ID, bean.getId());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -175,9 +187,11 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
         TextView tvActor;
         TextView tvContent;
         TextView tvScore;
+        View itemView;
 
         public BrandDetailHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.yaya.myvr.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.BrandDetailActivity;
+import com.yaya.myvr.activity.VideoInfoActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.bean.FindInfo;
 import com.yaya.myvr.dao.Brand;
-import com.yaya.myvr.util.LogUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -75,7 +77,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
     }
 
     private void bindDefault(FindHolder holder, int position) {
-        FindInfo.DataBean bean = findList.get(position);
+        final FindInfo.DataBean bean = findList.get(position);
         Glide.with(context)
                 .load(bean.getPicture())
                 .placeholder(R.drawable.icon_placeholder)
@@ -85,7 +87,6 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
         holder.tvTitle.setText(bean.getTitle());
 
         final Brand brand = brandMap.get(Integer.valueOf(bean.getBrand()));
-        LogUtils.e(TAG, "brand = " + brand);
         Glide.with(context)
                 .load(brand.logo)
                 .placeholder(R.drawable.icon_placeholder_squre)
@@ -94,10 +95,23 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
                 .into(holder.ivLogo);
         holder.tvName.setText(brand.name);
         holder.tvTimes.setText(bean.getPlayTimes());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, VideoInfoActivity.class);
+                intent.putExtra(AppConst.VIDEO_ID, bean.getId());
+                context.startActivity(intent);
+            }
+        });
+
         holder.llBrand.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context.getApplicationContext(), "brandId:" + brand.brandId, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, BrandDetailActivity.class);
+                intent.putExtra(AppConst.BRAND_ID, brand.brandId);
+                intent.putExtra(AppConst.BRAND_NAME, brand.name);
+                context.startActivity(intent);
             }
         });
     }
@@ -129,6 +143,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
     }
 
     static class FindHolder extends RecyclerView.ViewHolder {
+        View itemView;
         ImageView ivPic;
         TextView tvTitle;
         LinearLayout llBrand;
@@ -140,6 +155,7 @@ public class FindAdapter extends RecyclerView.Adapter<FindAdapter.FindHolder> {
 
         public FindHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
         }
     }
 }

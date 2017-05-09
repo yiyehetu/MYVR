@@ -24,10 +24,13 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.tv_mine)
     TextView tvMine;
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private HomeFragment homeFragment;
     private BrandFragment brandFragment;
     private FindFragment findFragment;
     private MineFragment mineFragment;
+
+    private int currPositon = -1;
 
     @Override
     protected int getLayoutId() {
@@ -92,6 +95,7 @@ public class MainActivity extends BaseActivity {
                 break;
         }
         transaction.commit();
+        currPositon = id;
     }
 
     /**
@@ -168,4 +172,18 @@ public class MainActivity extends BaseActivity {
         selectTab(R.id.tv_mine);
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        LogUtils.e(TAG, "onRestoreInstanceState...");
+        currPositon = savedInstanceState.getInt("position");
+        selectTab(currPositon);
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+//        LogUtils.e(TAG, "onSaveInstanceState...");
+        // 记录当前的position
+        outState.putInt("position", currPositon);
+    }
 }

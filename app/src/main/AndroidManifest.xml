@@ -24,7 +24,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.BrandDetailActivity" />
-        <activity android:name=".activity.TypeActivity"></activity>
+        <activity android:name=".activity.TypeActivity" />
+        <activity android:name=".activity.VideoInfoActivity"></activity>
     </application>
 
 </manifest>

@@ -75,7 +75,7 @@ public class HomeFragment extends BaseFragment {
             // 透明状态
             private boolean isTransparent = true;
             // 顶部View
-            private View firstView = null;
+//            private View firstView = null;
             // 位置存储
             private int[] location = new int[2];
 
@@ -83,6 +83,7 @@ public class HomeFragment extends BaseFragment {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && firstVisiableItem == 0 && homeAdapter != null) {
+                    // 开启自动轮播
                     homeAdapter.setAutoIndex(true);
                 }
             }
@@ -92,19 +93,16 @@ public class HomeFragment extends BaseFragment {
                 super.onScrolled(recyclerView, dx, dy);
                 firstVisiableItem = layoutManager.findFirstVisibleItemPosition();
                 if (firstVisiableItem != 0) {
+                    // 停止自动轮播
+                    if (homeAdapter != null) {
+                        homeAdapter.setAutoIndex(false);
+                    }
                     return;
                 }
 
                 // 位于顶部
-                // 设置自动轮播
-                if (homeAdapter != null) {
-                    homeAdapter.setAutoIndex(false);
-                }
-
                 // 顶部渐变
-                if (firstView == null) {
-                    firstView = layoutManager.findViewByPosition(0);
-                }
+                View firstView = layoutManager.findViewByPosition(0);
                 firstView.getLocationInWindow(location);
                 int currY = Math.abs(location[1]);
 //                    LogUtils.e(TAG, "currY = " + currY);

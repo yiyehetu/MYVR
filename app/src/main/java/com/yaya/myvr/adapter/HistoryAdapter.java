@@ -7,10 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.yaya.myvr.R;
+import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.dao.History;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -66,25 +69,29 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryH
         holder.tvDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "delete all", Toast.LENGTH_SHORT).show();
+                historyList.clear();
+                notifyDataSetChanged();
+                Delete.table(History.class);
             }
         });
     }
 
     private void bindDefault(HistoryHolder holder, int position) {
-        History history = historyList.get(position);
+        final History history = historyList.get(position);
         holder.tvHistory.setText(history.data);
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "delete item", Toast.LENGTH_SHORT).show();
+                historyList.remove(history);
+                notifyDataSetChanged();
+                history.delete();
             }
         });
 
         holder.tvHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                EventBus.getDefault().post(new AppEvent("history_click", history.data));
             }
         });
     }
@@ -100,6 +107,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryH
 
     @Override
     public int getItemCount() {
+        if (historyList.size() == 0) {
+            return 0;
+        }
+
         return historyList.size() + 1;
     }
 

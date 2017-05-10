@@ -7,6 +7,7 @@ import com.yaya.myvr.bean.DictInfo;
 import com.yaya.myvr.bean.FindInfo;
 import com.yaya.myvr.bean.HomeInfo;
 import com.yaya.myvr.bean.RelativeInfo;
+import com.yaya.myvr.bean.SearchInfo;
 import com.yaya.myvr.bean.TypeInfo;
 import com.yaya.myvr.bean.VideoInfo;
 
@@ -55,6 +56,10 @@ public interface ApiService {
 
     @GET("jsonApi")
     Observable<RelativeInfo> getRelativeInfo(@QueryMap Map<String, String> map);
+
+    // 搜索信息
+    @GET("jsonApi")
+    Observable<SearchInfo> getSearchInfo(@QueryMap Map<String, String> map);
 //    // 画报
 //    @GET("articles/daily/simple/")
 //    Observable<BildInfo> getBildInfo(@QueryMap Map<String, String> map);

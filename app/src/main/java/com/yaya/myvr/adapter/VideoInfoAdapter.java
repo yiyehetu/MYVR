@@ -44,6 +44,7 @@ public class VideoInfoAdapter extends RecyclerView.Adapter<VideoInfoAdapter.Vide
         final RelativeInfo.DataBean bean = dataList.get(position);
         Glide.with(context)
                 .load(bean.getPicture())
+                .placeholder(R.drawable.icon_placeholder)
                 .centerCrop()
                 .crossFade()
                 .into(holder.ivPic);

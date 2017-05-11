@@ -243,6 +243,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         String adUrl = homeList.get(1).getAdData();
         Glide.with(context)
                 .load(adUrl)
+                .placeholder(R.drawable.icon_placeholder)
                 .centerCrop()
                 .crossFade()
                 .into(holder.ivRecommend);

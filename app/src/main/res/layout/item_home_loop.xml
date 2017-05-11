@@ -19,7 +19,7 @@
         android:layout_marginLeft="12dp"
         android:gravity="center"
         android:text="少女舞蹈梦"
-        android:textColor="@color/white_30alpha"
+        android:textColor="@color/white_64alpha"
         android:textSize="@dimen/textsize_14" />
 
 </RelativeLayout>

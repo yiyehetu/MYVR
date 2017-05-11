@@ -25,53 +25,55 @@
     <RelativeLayout
         android:id="@+id/rl_search"
         android:layout_width="match_parent"
-        android:layout_height="70dp">
+        android:layout_height="70dp"
+        android:background="@color/top_nav_background">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:fitsSystemWindows="true"
-            android:src="@drawable/ic_vr" />
+        <View
+            android:id="@+id/empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
 
         <LinearLayout
-            android:id="@+id/ll_search"
-            android:layout_width="240dp"
-            android:layout_height="28dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/home_item_search"
-            android:fitsSystemWindows="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/empty_view"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
+            android:gravity="center_vertical">
 
             <ImageView
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:layout_marginLeft="8dp"
-                android:src="@drawable/icon_search" />
+                android:id="@+id/iv_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_vr" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:fitsSystemWindows="true"
-                android:gravity="center"
-                android:text="搜索片名"
-                android:textSize="@dimen/textsize_12" />
+            <LinearLayout
+                android:layout_marginLeft="10dp"
+                android:id="@+id/ll_search"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:background="@drawable/home_item_search"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/icon_search" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:gravity="center"
+                    android:text="搜索片名"
+                    android:textSize="@dimen/textsize_12" />
+            </LinearLayout>
+
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iv_search"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="12dp"
-            android:layout_marginRight="20dp"
-            android:fitsSystemWindows="true"
-            android:src="@drawable/icon_qr" />
     </RelativeLayout>
 
 </FrameLayout>

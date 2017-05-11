@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.yaya.myvr.R;
 import com.yaya.myvr.activity.SearchActivity;
@@ -287,11 +286,6 @@ public class HomeFragment extends BaseFragment {
     @OnClick(R.id.ll_search)
     void clickSearch() {
         startActivity(SearchActivity.class);
-    }
-
-    @OnClick(R.id.iv_search)
-    void clickScan() {
-        Toast.makeText(getContext(), "click scan...", Toast.LENGTH_SHORT).show();
     }
 
     @Override

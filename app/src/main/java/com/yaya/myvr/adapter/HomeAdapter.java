@@ -22,13 +22,6 @@ import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.widget.FixedGridView;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
 
 
 /**
@@ -44,13 +37,18 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     private List<HomeInfo.DataBean.BtnsBean> btnList;
     private List<HomeInfo.DataBean.HomeListBean> homeList;
     private List<HomeInfo.DataBean.LoopViewBean> loopList;
-    private Subscription subscription;
+
     private int size;
     private int currPostion = 0;
 
     private HomeHolder headerHolder;
+
     // 自动滑动标记
     private boolean isAutoIndex = true;
+
+    public boolean getAutoIndex() {
+        return isAutoIndex;
+    }
 
     public void setAutoIndex(boolean autoIndex) {
         isAutoIndex = autoIndex;
@@ -79,7 +77,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 initIndex(headerHolder.llIndex);
                 setIndex(headerHolder.llIndex, 0);
                 setViewPagerListener(headerHolder.vpHeader, headerHolder.llIndex);
-                performTask();
                 return headerHolder;
             case RECOMMEND:
                 View recommendView = LayoutInflater.from(context).inflate(R.layout.item_home_recommend, parent, false);
@@ -204,39 +201,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     // 执行定时任务
     public void performTask() {
-        if (subscription != null) {
-            return;
-        }
-
-        subscription = Observable.interval(5, 5, TimeUnit.SECONDS)
-                .filter(new Func1<Long, Boolean>() {
-                    @Override
-                    public Boolean call(Long aLong) {
-                        return isAutoIndex;
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long aLong) {
-//                        LogUtils.e(TAG, "aLong = " + aLong);
-                        int postion = (int) (currPostion + 1);
-//                        LogUtils.e(TAG, "postion = " + postion);
-                        headerHolder.vpHeader.setCurrentItem(postion);
-                        int index = postion - postion / size * size;
-//                        LogUtils.e(TAG, "index = " + index);
-                        setIndex(headerHolder.llIndex, index);
-                    }
-                });
+        int postion = (int) (currPostion + 1);
+        headerHolder.vpHeader.setCurrentItem(postion);
+        int index = postion - postion / size * size;
+        setIndex(headerHolder.llIndex, index);
     }
 
-    // 取消定时任务
-    public void cancelTask() {
-        if (subscription != null && !subscription.isUnsubscribed()) {
-            subscription.unsubscribe();
-            subscription = null;
-        }
-    }
 
     // 绑定推荐Item
     private void bindRecommend(HomeHolder holder) {

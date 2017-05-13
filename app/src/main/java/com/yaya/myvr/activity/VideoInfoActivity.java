@@ -226,6 +226,7 @@ public class VideoInfoActivity extends BaseActivity {
             case R.id.iv_like:
                 break;
             case R.id.ll_play:
+                startActivity(VideoActivity.class);
                 break;
         }
     }

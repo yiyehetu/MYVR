@@ -28,12 +28,16 @@ import com.yaya.myvr.widget.VpSwipeRefreshLayout;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -55,6 +59,7 @@ public class HomeFragment extends BaseFragment {
     private LinearLayoutManager layoutManager;
     private HomeAdapter homeAdapter;
     private static final float BASE_Y = ConvertUtils.dp2px(VRApp.getAppInstance().getApplicationContext(), 240);
+    private Subscription subscription;
 
     @Override
     protected int getLayoutId() {
@@ -137,6 +142,7 @@ public class HomeFragment extends BaseFragment {
             public void onGlobalLayout() {
                 rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 srlHome.setRefreshing(true);
+                cancelAutoSkip();
                 requestData();
             }
         });
@@ -271,8 +277,39 @@ public class HomeFragment extends BaseFragment {
         if (homeInfo != null && homeInfo.getErrCode() == 0) {
             homeAdapter = new HomeAdapter(homeInfo.getData(), getContext());
             rvHome.setAdapter(homeAdapter);
+            setAutoSkip();
         } else {
             // 数据有误
+        }
+    }
+
+    private void setAutoSkip() {
+        if (subscription != null) {
+            return;
+        }
+
+        subscription = Observable.interval(5, 5, TimeUnit.SECONDS)
+                .filter(new Func1<Long, Boolean>() {
+                    @Override
+                    public Boolean call(Long aLong) {
+                        return homeAdapter.getAutoIndex();
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        homeAdapter.performTask();
+                    }
+                });
+    }
+
+
+    // 取消定时任务
+    public void cancelAutoSkip() {
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+            subscription = null;
         }
     }
 
@@ -292,18 +329,16 @@ public class HomeFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         LogUtils.e(TAG, "onStart...");
-        if (homeAdapter != null) {
-            homeAdapter.performTask();
+        if (homeAdapter == null) {
+            return;
         }
+        setAutoSkip();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         LogUtils.e(TAG, "onStop...");
-        if (homeAdapter != null) {
-            homeAdapter.cancelTask();
-        }
+        cancelAutoSkip();
     }
-
 }

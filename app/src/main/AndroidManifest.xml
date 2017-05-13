@@ -3,8 +3,12 @@
     package="com.yaya.myvr">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <meta-data
+        android:name="com.yaya.myvr.widget.VRGlideModule"
+        android:value="GlideModule" />
 
     <application
         android:name=".app.VRApp"
@@ -27,11 +31,10 @@
         <activity android:name=".activity.BrandDetailActivity" />
         <activity android:name=".activity.TypeActivity" />
         <activity android:name=".activity.VideoInfoActivity" />
-        <activity android:name=".activity.SearchActivity"></activity>
+        <activity android:name=".activity.SearchActivity" />
+        <activity
+            android:name=".activity.VideoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
     </application>
-
-    <meta-data
-        android:name="com.yaya.myvr.widget.VRGlideModule"
-        android:value="GlideModule" />
 
 </manifest>

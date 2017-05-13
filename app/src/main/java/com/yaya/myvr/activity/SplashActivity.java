@@ -9,6 +9,8 @@ import com.yaya.myvr.base.BaseActivity;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 /**
@@ -25,7 +27,8 @@ public class SplashActivity extends BaseActivity {
     protected void initView() {
         setNetBaseMap();
         // 延时任务
-        Observable.timer(1000, TimeUnit.MILLISECONDS)
+        Subscription subscription = Observable.timer(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long aLong) {
@@ -33,6 +36,7 @@ public class SplashActivity extends BaseActivity {
                         finish();
                     }
                 });
+        subscriptionList.add(subscription);
     }
 
     private void setNetBaseMap() {

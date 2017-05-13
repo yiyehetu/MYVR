@@ -10,6 +10,7 @@ import com.yaya.myvr.fragment.BrandFragment;
 import com.yaya.myvr.fragment.FindFragment;
 import com.yaya.myvr.fragment.HomeFragment;
 import com.yaya.myvr.fragment.MineFragment;
+import com.yaya.myvr.util.LogUtils;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -44,6 +45,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LogUtils.e(TAG, "onCreate....");
         super.onCreate(savedInstanceState);
 
         selectTab(R.id.tv_home);

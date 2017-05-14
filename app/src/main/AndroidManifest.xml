@@ -34,7 +34,8 @@
         <activity android:name=".activity.SearchActivity" />
         <activity
             android:name=".activity.VideoActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity android:name=".activity.MineActivity"></activity>
     </application>
 
 </manifest>

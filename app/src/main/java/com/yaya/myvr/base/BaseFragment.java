@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import rx.Subscription;
 
 /**
@@ -25,6 +26,7 @@ import rx.Subscription;
 public abstract class BaseFragment extends Fragment {
     protected View rootView;
     protected List<Subscription> subscriptionList = new ArrayList<>();
+    private Unbinder unbinder;
 
     // 子Fragment加载布局
     protected abstract int getLayoutId();
@@ -42,7 +44,7 @@ public abstract class BaseFragment extends Fragment {
             rootView = inflater.inflate(getLayoutId(), container, false);
         }
 
-        ButterKnife.bind(this, rootView);
+        unbinder = ButterKnife.bind(this, rootView);
         initView();
         return rootView;
     }
@@ -92,6 +94,7 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unbinder.unbind();
         RxManager.unsubscribe(subscriptionList);
     }
 

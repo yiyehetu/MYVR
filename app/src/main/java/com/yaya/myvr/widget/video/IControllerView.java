@@ -11,9 +11,9 @@ public interface IControllerView {
     void showLoadView();
     // 显示结束
     void showCompletedView();
-
+    // 显示播放错误
     void showPlayError(String errorMsg);
-
+    // 显示缓冲进度
     void showBufferProgress(int percent);
 
     // 开始计时

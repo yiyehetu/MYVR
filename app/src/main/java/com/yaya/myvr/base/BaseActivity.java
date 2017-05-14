@@ -15,10 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import rx.Subscription;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
+    private Unbinder unbinder;
     // 子Activity加载布局
     protected abstract int getLayoutId();
     // 初始化View
@@ -32,7 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         // 预处理
         doBeforeSetContentView();
         setContentView(getLayoutId());
-        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
 
         initView();
     }
@@ -108,6 +110,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbinder.unbind();
         RxManager.unsubscribe(subscriptionList);
         // 移除Activity
         AppManager.getInstance().finishActivity(this);

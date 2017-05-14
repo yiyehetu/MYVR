@@ -1,5 +1,8 @@
 package com.yaya.myvr.widget.video;
 
+import android.content.Context;
+import android.net.Uri;
+
 import com.asha.vrlib.MDVRLibrary;
 import com.yaya.myvr.util.LogUtils;
 
@@ -106,6 +109,20 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
     public void openRemoteFile(String path) {
         try {
             mPlayer.setDataSource(path);
+            // 进入Initialized状态
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 打开远程文件
+     *
+     * @param uri
+     */
+    public void openLocalFile(Context context, Uri uri) {
+        try {
+            mPlayer.setDataSource(context, uri);
             // 进入Initialized状态
         } catch (IOException e) {
             e.printStackTrace();

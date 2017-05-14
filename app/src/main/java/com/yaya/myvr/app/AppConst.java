@@ -35,4 +35,7 @@ public class AppConst {
     public static final String TYPE_POSITION = "type_postion";
     public static final String TYPE_CATE = "type_cate";
     public static final String TYPE_TAG = "type_tag";
+    public static final int LOCAL_VIDEO = 100;
+    public static final int COLLECT_VIDEO = 101;
+    public static final int CACHE_VIDEO = 102;
 }

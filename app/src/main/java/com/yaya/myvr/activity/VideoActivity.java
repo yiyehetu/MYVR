@@ -89,6 +89,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
                 mdvrLibrary.switchDisplayMode(VideoActivity.this);
             }
         });
+
         // 播放切换
         cbPlay.setChecked(true);
         cbPlay.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -105,6 +106,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
                 }
             }
         });
+
         // 播放位置
         sbProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             private float miliSeconds;
@@ -119,8 +121,6 @@ public class VideoActivity extends BaseActivity implements IControllerView {
                 this.progress = progress;
                 miliSeconds = progress / 200.0f * duration;
                 tvTime.setText(getFormatTime(miliSeconds));
-//                LogUtils.e(TAG, "miliSeconds = " + miliSeconds + ", duration = " + duration);
-//                LogUtils.e(TAG, "progress = " + progress);
             }
 
             @Override
@@ -171,6 +171,10 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         videoController = new VideoController(this);
         initVRlibrary();
         videoController.initPlayer(mdvrLibrary);
+
+        String path = "/storage/0266-2DB4/DCIM/Camera/20161005_132423.mp4";
+
+//        videoController.openLocalFile(this, Uri.parse(path));
         videoController.openRemoteFile("http://cache.utovr.com/201508270528174780.m3u8");
 //        videoController.openRemoteFile("http://cache.utovr.com/s1oc3vlhxbt9mugwjz/L2_1920_3_25.m3u8");
         videoController.prepare();
@@ -255,7 +259,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
 
     @Override
     public void showPlayError(String errorMsg) {
-
+        Toast.makeText(VideoActivity.this, "error:" + errorMsg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -290,7 +294,6 @@ public class VideoActivity extends BaseActivity implements IControllerView {
 
                         LogUtils.e(TAG, "position = " + position);
                         // 莫名超出处理
-
                         tvTime.setText(getFormatTime(position));
 
                         float progress = position / duration * 200;
@@ -304,11 +307,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
 
     @Override
     public void stopTimer() {
-        if (timerSubscription == null) {
-            return;
-        }
-
-        if (!timerSubscription.isUnsubscribed()) {
+        if (timerSubscription != null && !timerSubscription.isUnsubscribed()) {
             timerSubscription.unsubscribe();
             timerSubscription = null;
         }

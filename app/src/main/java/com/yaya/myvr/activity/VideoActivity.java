@@ -28,6 +28,7 @@ import com.yaya.myvr.widget.video.VideoController;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -54,15 +55,20 @@ public class VideoActivity extends BaseActivity implements IControllerView {
     TextView tvTime;
     @BindView(R.id.rl_menu)
     RelativeLayout rlMenu;
-
-    private static final String TAG = VideoActivity.class.getSimpleName();
     @BindView(R.id.tvTotalTime)
     TextView tvTotalTime;
+    @BindView(R.id.awake_menu)
+    View awakeMenu;
+
+    private static final String TAG = VideoActivity.class.getSimpleName();
     private MDVRLibrary mdvrLibrary;
     private VideoController videoController;
     private float duration;
+    // 菜单显示
+    private boolean isShowing = true;
 
     private Subscription timerSubscription;
+    private Subscription menuSubscription;
     private float prePositon = 0.0f;
 
     @Override
@@ -166,6 +172,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         initVRlibrary();
         videoController.initPlayer(mdvrLibrary);
         videoController.openRemoteFile("http://cache.utovr.com/201508270528174780.m3u8");
+//        videoController.openRemoteFile("http://cache.utovr.com/s1oc3vlhxbt9mugwjz/L2_1920_3_25.m3u8");
         videoController.prepare();
     }
 
@@ -204,6 +211,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         mdvrLibrary.onPause(this);
         videoController.pause();
         stopTimer();
+        clearMenuTimer();
     }
 
     @Override
@@ -238,26 +246,21 @@ public class VideoActivity extends BaseActivity implements IControllerView {
     @Override
     public void showCompletedView() {
         cbPlay.setChecked(false);
-    }
-
-    private void hideMenu() {
-        // 延时任务
-        Subscription subscription = Observable.timer(3000, TimeUnit.MILLISECONDS)
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long aLong) {
-                        btnBack.setVisibility(View.GONE);
-                        rlMenu.setVisibility(View.GONE);
-                        cbMode.setVisibility(View.GONE);
-                    }
-                });
-
-        subscriptionList.add(subscription);
+        clearMenuTimer();
+        btnBack.setVisibility(View.VISIBLE);
+        rlMenu.setVisibility(View.VISIBLE);
+        cbMode.setVisibility(View.VISIBLE);
+        isShowing = true;
     }
 
     @Override
     public void showPlayError(String errorMsg) {
 
+    }
+
+    @Override
+    public void showBufferProgress(int percent) {
+        sbProgress.setSecondaryProgress(percent * 2);
     }
 
     @Override
@@ -287,9 +290,8 @@ public class VideoActivity extends BaseActivity implements IControllerView {
 
                         LogUtils.e(TAG, "position = " + position);
                         // 莫名超出处理
-                        if (position <= duration) {
-                            tvTime.setText(getFormatTime(position));
-                        }
+
+                        tvTime.setText(getFormatTime(position));
 
                         float progress = position / duration * 200;
                         int value = (int) progress;
@@ -318,6 +320,45 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         tvTotalTime.setText(" / " + getFormatTime(duration));
     }
 
+    @Override
+    public void switchMenuView() {
+        if (isShowing) {
+            btnBack.setVisibility(View.GONE);
+            rlMenu.setVisibility(View.GONE);
+            cbMode.setVisibility(View.GONE);
+            isShowing = false;
+        } else {
+            btnBack.setVisibility(View.VISIBLE);
+            rlMenu.setVisibility(View.VISIBLE);
+            cbMode.setVisibility(View.VISIBLE);
+            isShowing = true;
+            startMenuTimer();
+        }
+    }
+
+    @Override
+    public void startMenuTimer() {
+        clearMenuTimer();
+        menuSubscription = Observable.timer(5000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        btnBack.setVisibility(View.GONE);
+                        rlMenu.setVisibility(View.GONE);
+                        cbMode.setVisibility(View.GONE);
+                        isShowing = false;
+                    }
+                });
+    }
+
+    private void clearMenuTimer() {
+        if (menuSubscription != null && !menuSubscription.isUnsubscribed()) {
+            menuSubscription.unsubscribe();
+            menuSubscription = null;
+        }
+    }
+
     private String getFormatTime(float miliSeconds) {
         miliSeconds = miliSeconds / 1000;
         int hours = (int) (miliSeconds / 3600);
@@ -325,5 +366,22 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         int minutes = (int) (miliSeconds / 60);
         int seconds = (int) (miliSeconds - minutes * 60);
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    @OnClick(R.id.rl_menu)
+    void clickRelativeMenu() {
+        LogUtils.e(TAG, "relativelayout onclick...");
+        switchMenuView();
+    }
+
+    @OnClick(R.id.awake_menu)
+    void clickAwakeMenu() {
+        LogUtils.e(TAG, "view onclick...");
+        switchMenuView();
+    }
+
+    @OnClick(R.id.btn_back)
+    void back() {
+        finish();
     }
 }

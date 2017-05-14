@@ -12,7 +12,7 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
  * Created by admin on 2017/5/13.
  */
 
-public class VideoController implements IVideoController, IMediaPlayer.OnPreparedListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnVideoSizeChangedListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnSeekCompleteListener {
+public class VideoController implements IVideoController, IMediaPlayer.OnPreparedListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnVideoSizeChangedListener, IMediaPlayer.OnCompletionListener, IMediaPlayer.OnSeekCompleteListener, IMediaPlayer.OnBufferingUpdateListener {
     private static final String TAG = VideoController.class.getSimpleName();
     // 播放状态
     private static final int STATUS_IDLE = 0;
@@ -49,6 +49,7 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
         mPlayer.setOnVideoSizeChangedListener(this);
         mPlayer.setOnCompletionListener(this);
         mPlayer.setOnSeekCompleteListener(this);
+        mPlayer.setOnBufferingUpdateListener(this);
         mPlayer.setOnInfoListener(new IMediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(IMediaPlayer mp, int what, int extra) {
@@ -154,6 +155,7 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
             mStatus = STATUS_STARTED;
             // 开始计时
             controllerView.startTimer();
+            controllerView.startMenuTimer();
         }
 
     }
@@ -210,5 +212,11 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
             controllerView.startTimer();
         }
 
+    }
+
+    @Override
+    public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int percent) {
+        LogUtils.e(TAG, "onBufferingUpdate..." + percent);
+        controllerView.showBufferProgress(percent);
     }
 }

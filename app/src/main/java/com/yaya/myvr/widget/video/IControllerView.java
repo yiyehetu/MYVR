@@ -14,10 +14,17 @@ public interface IControllerView {
 
     void showPlayError(String errorMsg);
 
+    void showBufferProgress(int percent);
+
     // 开始计时
     void startTimer();
     // 停止计时
     void stopTimer();
     // 显示总时间
     void showTotalTime();
+    // 切换显示菜单
+    void switchMenuView();
+
+    // 菜单计时
+    void startMenuTimer();
 }

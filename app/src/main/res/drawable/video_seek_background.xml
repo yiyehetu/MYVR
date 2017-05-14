@@ -6,7 +6,7 @@
             <size
                 android:height="2dp" />
             <corners android:radius="5dp"/>
-            <solid android:color="#88ffffff" />
+            <solid android:color="@color/white" />
         </shape>
     </item>
     <item
@@ -16,7 +16,7 @@
                 <size
                     android:height="2dp" />
                 <corners android:radius="5dp"/>
-                <solid android:color="#88ffffff" />
+                <solid android:color="@color/grey" />
             </shape>
         </clip>
     </item>

@@ -152,6 +152,7 @@ public class HomeFragment extends BaseFragment {
     protected void initData() {
         LogUtils.e(TAG, "HomeFragment init Data...");
 
+
 //        requestData();
     }
 

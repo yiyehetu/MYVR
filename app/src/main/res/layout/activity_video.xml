@@ -17,25 +17,33 @@
 
     <Button
         android:id="@+id/btn_back"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_margin="12dp"
         android:background="@drawable/ic_video_back" />
 
     <CheckBox
         android:id="@+id/cb_mode"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="right|center"
         android:layout_marginRight="12dp"
         android:background="@drawable/bg_vrmode_xml"
         android:button="@null" />
 
+    <View
+        android:id="@+id/awake_menu"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@color/transparent"/>
+
 
     <RelativeLayout
         android:id="@+id/rl_menu"
         android:layout_width="match_parent"
-        android:layout_height="60dip"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:background="@color/transparent3"
@@ -59,8 +67,8 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="120dp"
             android:layout_toRightOf="@+id/cb_play"
-            android:maxHeight="2dp"
             android:max="200"
+            android:maxHeight="2dp"
             android:paddingLeft="15dp"
             android:progressDrawable="@drawable/video_seek_background"
             android:thumb="@drawable/ic_progress" />
@@ -90,5 +98,6 @@
             android:textSize="@dimen/textsize_12" />
 
     </RelativeLayout>
+
 
 </FrameLayout>

@@ -1,7 +1,10 @@
 package com.yaya.myvr.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.Surface;
@@ -19,6 +22,7 @@ import android.widget.Toast;
 
 import com.asha.vrlib.MDVRLibrary;
 import com.yaya.myvr.R;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.app.AppManager;
 import com.yaya.myvr.base.BaseActivity;
 import com.yaya.myvr.util.LogUtils;
@@ -61,6 +65,8 @@ public class VideoActivity extends BaseActivity implements IControllerView {
     View awakeMenu;
 
     private static final String TAG = VideoActivity.class.getSimpleName();
+    private static final String POSITON = "position";
+    private static final String PATH = "path";
     private MDVRLibrary mdvrLibrary;
     private VideoController videoController;
     private float duration;
@@ -160,22 +166,35 @@ public class VideoActivity extends BaseActivity implements IControllerView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 获得传递数据
+        Intent intent = getIntent();
+        int positon = intent.getIntExtra(POSITON, -1);
+        if (positon == -1) {
+            return;
+        }
+        String path = intent.getStringExtra(PATH);
 
-        initController();
+        initController(positon, path);
     }
 
     /**
      * 初始化控制器
      */
-    private void initController() {
+    private void initController(int position, String path) {
         videoController = new VideoController(this);
         initVRlibrary();
         videoController.initPlayer(mdvrLibrary);
 
-        String path = "/storage/0266-2DB4/DCIM/Camera/20161005_132423.mp4";
+        if (position == AppConst.ONLINE_VIDEO) {
+            // 在线视频
+            videoController.openRemoteFile(path);
+        } else {
+            // 本地视频
+            videoController.openLocalFile(this, Uri.parse(path));
+        }
 
-//        videoController.openLocalFile(this, Uri.parse(path));
-        videoController.openRemoteFile("http://cache.utovr.com/201508270528174780.m3u8");
+//        String path = "/storage/0266-2DB4/DCIM/Camera/20161005_132423.mp4";
+//        videoController.openRemoteFile("http://cache.utovr.com/201508270528174780.m3u8");
 //        videoController.openRemoteFile("http://cache.utovr.com/s1oc3vlhxbt9mugwjz/L2_1920_3_25.m3u8");
         videoController.prepare();
     }
@@ -259,7 +278,10 @@ public class VideoActivity extends BaseActivity implements IControllerView {
 
     @Override
     public void showPlayError(String errorMsg) {
-        Toast.makeText(VideoActivity.this, "error:" + errorMsg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(VideoActivity.this, "抱歉,当前视频链接有误,将跳转测试视频...", Toast.LENGTH_SHORT).show();
+        videoController.getPlayer().reset();
+        videoController.openRemoteFile("http://cache.utovr.com/201508270528174780.m3u8");
+        videoController.prepare();
     }
 
     @Override
@@ -365,6 +387,19 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         int minutes = (int) (miliSeconds / 60);
         int seconds = (int) (miliSeconds - minutes * 60);
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    /**
+     * 统一启动方法
+     *
+     * @param context
+     * @param position
+     */
+    public static void start(Context context, int position, String path) {
+        Intent intent = new Intent(context, VideoActivity.class);
+        intent.putExtra(POSITON, position);
+        intent.putExtra(PATH, path);
+        context.startActivity(intent);
     }
 
     @OnClick(R.id.rl_menu)

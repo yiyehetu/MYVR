@@ -31,6 +31,19 @@
             android:text="标题"
             android:textColor="@color/white"
             android:textSize="@dimen/textsize_16" />
+
+        <TextView
+            android:id="@+id/tv_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:gravity="center"
+            android:text="注册"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/textsize_16"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <FrameLayout

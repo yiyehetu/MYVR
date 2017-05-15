@@ -202,6 +202,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     // 执行定时任务
     public void performTask() {
         int postion = (int) (currPostion + 1);
+        if (headerHolder == null || headerHolder.vpHeader == null) {
+            return;
+        }
+
         headerHolder.vpHeader.setCurrentItem(postion);
         int index = postion - postion / size * size;
         setIndex(headerHolder.llIndex, index);

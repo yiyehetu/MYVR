@@ -19,12 +19,13 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
     private static final String TAG = VideoController.class.getSimpleName();
     // 播放状态
     private static final int STATUS_IDLE = 0;
-    private static final int STATUS_PREPARING = 1;
-    private static final int STATUS_PREPARED = 2;
-    private static final int STATUS_STARTED = 3;
-    private static final int STATUS_PAUSED = 4;
-    private static final int STATUS_STOPPED = 5;
-    private static final int STATUS_COMPLETED = 6;
+    private static final int STATUS_INITIALIZED = 1;
+    private static final int STATUS_PREPARING = 2;
+    private static final int STATUS_PREPARED = 3;
+    private static final int STATUS_STARTED = 4;
+    private static final int STATUS_PAUSED = 5;
+    private static final int STATUS_STOPPED = 6;
+    private static final int STATUS_COMPLETED = 7;
 
     private int mStatus = STATUS_IDLE;
 
@@ -91,6 +92,7 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
      */
     @Override
     public void onPrepared(IMediaPlayer iMediaPlayer) {
+        LogUtils.e(TAG, "onPrepared...");
         mStatus = STATUS_PREPARED;
         controllerView.showTotalTime();
         controllerView.hideLoadView();
@@ -109,7 +111,9 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
     public void openRemoteFile(String path) {
         try {
             mPlayer.setDataSource(path);
+            mStatus = STATUS_INITIALIZED;
             // 进入Initialized状态
+            LogUtils.e(TAG, "Initialized...");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -124,19 +128,22 @@ public class VideoController implements IVideoController, IMediaPlayer.OnPrepare
         try {
             mPlayer.setDataSource(context, uri);
             // 进入Initialized状态
+            mStatus = STATUS_INITIALIZED;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void prepare() {
+        LogUtils.e(TAG, "prepare...");
         if (mPlayer == null) {
             return;
         }
 
-        if (mStatus == STATUS_IDLE || mStatus == STATUS_STOPPED) {
+        if (mStatus == STATUS_INITIALIZED || mStatus == STATUS_STOPPED) {
             mPlayer.prepareAsync();
             mStatus = STATUS_PREPARING;
+            LogUtils.e(TAG, "preparing...");
         }
     }
 

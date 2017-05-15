@@ -1,37 +1,24 @@
 package com.yaya.myvr.bean;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by admin on 2017/5/14.
  */
 
 public class Video {
-    private int id;
     private String title;
-    private String album;
     private String displayName;
     private String path;
-    private long duration;
-    private long size;
+    private String duration;
+    private Bitmap bitmap;
 
-    public Video(int id, String title, String album, String displayName, String path, long duration, long size) {
-        this.id = id;
+    public Video(String title, String displayName, String path, String duration, Bitmap bitmap) {
         this.title = title;
-        this.album = album;
         this.displayName = displayName;
         this.path = path;
         this.duration = duration;
-        this.size = size;
-    }
-
-    public Video() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.bitmap = bitmap;
     }
 
     public String getTitle() {
@@ -40,14 +27,6 @@ public class Video {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
     }
 
     public String getDisplayName() {
@@ -66,32 +45,30 @@ public class Video {
         this.path = path;
     }
 
-    public long getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public void setDuration(long duration) {
+    public void setDuration(String duration) {
         this.duration = duration;
     }
 
-    public long getSize() {
-        return size;
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 
-    public void setSize(long size) {
-        this.size = size;
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 
     @Override
     public String toString() {
         return "Video{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", album='" + album + '\'' +
+                "title='" + title + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", path='" + path + '\'' +
-                ", duration=" + duration +
-                ", size=" + size +
+                ", duration='" + duration + '\'' +
+                ", bitmap=" + bitmap +
                 '}';
     }
 }

@@ -28,14 +28,17 @@ public class AppConst {
     public static final Map<String, String> DICT_FORMAT = new HashMap<>();
     public static final Map<String, String> DICT_QUALITY = new HashMap<>();
     public static final List<DictInfo.DataBean.CategoryBean> DICT_CATEGORY = new ArrayList<>();
-
-
     public static boolean IS_DICT_REQUESTED = false;
 
     public static final String TYPE_POSITION = "type_postion";
     public static final String TYPE_CATE = "type_cate";
     public static final String TYPE_TAG = "type_tag";
+
+
     public static final int LOCAL_VIDEO = 100;
     public static final int COLLECT_VIDEO = 101;
     public static final int CACHE_VIDEO = 102;
+    public static final int ONLINE_VIDEO = 103;
+    public static final int LOGIN = 104;
+    public static final int REGISTER = 105;
 }

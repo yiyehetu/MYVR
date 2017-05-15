@@ -8,12 +8,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.MineActivity;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseFragment;
-import com.yaya.myvr.bean.Video;
 import com.yaya.myvr.util.LogUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -50,7 +48,6 @@ public class MineFragment extends BaseFragment {
 
     private static final String TAG = MineFragment.class.getSimpleName();
     private MediaLoadTask loadTask;
-    private List<Video> videoList = new ArrayList<>();
 
     @Override
     protected int getLayoutId() {
@@ -65,9 +62,33 @@ public class MineFragment extends BaseFragment {
     @Override
     protected void initData() {
         LogUtils.e("MineFragment init Data...");
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        startTask();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        clearTask();
+    }
+
+    private void startTask() {
+        if (loadTask != null) {
+            return;
+        }
         loadTask = new MediaLoadTask();
         loadTask.execute();
+    }
+
+    private void clearTask() {
+        if (loadTask != null && !loadTask.isCancelled()) {
+            loadTask.cancel(true);
+            loadTask = null;
+        }
     }
 
 
@@ -92,20 +113,11 @@ public class MineFragment extends BaseFragment {
     }
 
     private int getLoadMedia() {
+        int count = 0;
         Cursor cursor = getContext().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Video.Media.DEFAULT_SORT_ORDER);
         try {
             for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)); // id
-                String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
-                String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.ALBUM)); // 专辑
-                String displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)); // 显示名称
-                String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)); // 路径
-                long duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)); // 时长
-                long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)); // 大小
-
-                Video video = new Video(id, title, album, displayName, path, duration, size);
-                videoList.add(video);
-                LogUtils.e(TAG, "video = " + video);
+                count++;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,17 +125,27 @@ public class MineFragment extends BaseFragment {
             cursor.close();
         }
 
-        return videoList.size();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        loadTask.cancel(true);
+        return count;
     }
 
     @OnClick(R.id.ll_local)
     void clickLocalVideo() {
-
+        MineActivity.start(getContext(), AppConst.LOCAL_VIDEO);
     }
+
+    @OnClick(R.id.ll_collect)
+    void clickCollectVideo() {
+        MineActivity.start(getContext(), AppConst.COLLECT_VIDEO);
+    }
+
+    @OnClick(R.id.ll_cache)
+    void clickCacheVideo() {
+        MineActivity.start(getContext(), AppConst.CACHE_VIDEO);
+    }
+
+    @OnClick(R.id.ll_login)
+    void clickLogin(){
+        MineActivity.start(getContext(), AppConst.LOGIN);
+    }
+
 }

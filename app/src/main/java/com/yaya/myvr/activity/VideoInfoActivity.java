@@ -83,6 +83,7 @@ public class VideoInfoActivity extends BaseActivity {
     RecyclerView rvRelative;
 
     private String videoId;
+    private VideoInfo.DataBean bean;
 
     @Override
     protected int getLayoutId() {
@@ -152,7 +153,7 @@ public class VideoInfoActivity extends BaseActivity {
         if (videoInfo != null && videoInfo.getErrCode() == 0) {
             List<VideoInfo.DataBean> data = videoInfo.getData();
             if (data != null && !data.isEmpty()) {
-                VideoInfo.DataBean bean = data.get(0);
+                bean = data.get(0);
                 Glide.with(this)
                         .load(bean.getPicture())
                         .placeholder(R.drawable.icon_placeholder)
@@ -225,8 +226,12 @@ public class VideoInfoActivity extends BaseActivity {
                 break;
             case R.id.iv_like:
                 break;
+            // 视频播放
             case R.id.ll_play:
-                startActivity(VideoActivity.class);
+                if(bean == null){
+                    return;
+                }
+                VideoActivity.start(this, AppConst.ONLINE_VIDEO, bean.getM3u8());
                 break;
         }
     }

@@ -6,6 +6,7 @@ import com.yaya.myvr.bean.BrandTopInfo;
 import com.yaya.myvr.bean.DictInfo;
 import com.yaya.myvr.bean.FindInfo;
 import com.yaya.myvr.bean.HomeInfo;
+import com.yaya.myvr.bean.LoginInfo;
 import com.yaya.myvr.bean.RelativeInfo;
 import com.yaya.myvr.bean.SearchInfo;
 import com.yaya.myvr.bean.TypeInfo;
@@ -13,7 +14,10 @@ import com.yaya.myvr.bean.VideoInfo;
 
 import java.util.Map;
 
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.QueryMap;
 import rx.Observable;
 
@@ -60,6 +64,12 @@ public interface ApiService {
     // 搜索信息
     @GET("jsonApi")
     Observable<SearchInfo> getSearchInfo(@QueryMap Map<String, String> map);
+
+    // 登陆
+    @FormUrlEncoded
+    @POST("userApi")
+    Observable<LoginInfo> getLoginInfo(@QueryMap Map<String, String> map, @Field("deviceId") String deviceId, @Field("password") String password, @Field("phoneNumber") String phoneNumber);
+
 //    // 画报
 //    @GET("articles/daily/simple/")
 //    Observable<BildInfo> getBildInfo(@QueryMap Map<String, String> map);

@@ -1,6 +1,14 @@
 package com.yaya.myvr.fragment;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.text.InputType;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -8,13 +16,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
 import com.yaya.myvr.base.BaseFragment;
+import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.LoginInfo;
+import com.yaya.myvr.dao.Personal;
+import com.yaya.myvr.dao.Personal_Table;
+import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.EncryptUtils;
 import com.yaya.myvr.util.LogUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +60,10 @@ public class LoginFragment extends BaseFragment {
     Button btnLogin;
 
     private Map<String, String> map = new HashMap<>();
+    private AlertDialog alertDialog;
+    private String phone;
+    private String password;
+    private String deviceId;
 
     @Override
     protected int getLayoutId() {
@@ -76,8 +95,11 @@ public class LoginFragment extends BaseFragment {
 
     @OnClick(R.id.btn_login)
     void login() {
-        String phone = etPhone.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        hideInput();
+
+        deviceId = "Auv8WGLjpnBQQ6YoAZcg4hx8svqMpw0p60RFuqXrd93Y";
+        phone = etPhone.getText().toString().trim();
+        password = etPassword.getText().toString().trim();
 
         // 输入校验
         if (phone.length() == 0 && password.length() == 0) {
@@ -97,20 +119,16 @@ public class LoginFragment extends BaseFragment {
             return;
         }
 
-        requestLogin(phone, password );
+        password = EncryptUtils.encryptMD5ToString(password).toLowerCase();
+        showAlert();
+        requestLogin();
     }
 
     /**
      * 请求登陆
      *
-     * @param phone
-     * @param password
      */
-    private void requestLogin(String phone, String password) {
-        String deviceId = "Auv8WGLjpnBQQ6YoAZcg4hx8svqMpw0p60RFuqXrd93Y";
-        password = EncryptUtils.encryptMD5ToString(password).toLowerCase();
-        LogUtils.e(TAG, "password = " + password);
-
+    private void requestLogin() {
         Subscription subscription = ApiManager.getInstance().getApiService().getLoginInfo(map, deviceId, password, phone)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
@@ -124,15 +142,79 @@ public class LoginFragment extends BaseFragment {
                     @Override
                     public void onError(Throwable e) {
                         LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                        hideAlert();
                     }
 
                     @Override
                     public void onNext(LoginInfo loginInfo) {
                         LogUtils.e(TAG, "onNext... loginInfo = " + loginInfo);
+                        hideAlert();
+                        bindLoginInfo(loginInfo);
                     }
                 });
 
         subscriptionList.add(subscription);
+    }
+
+    private void bindLoginInfo(LoginInfo loginInfo) {
+        if (loginInfo != null && loginInfo.getErrCode() == 0) {
+            ApiConst.LOGIN_KEY = loginInfo.getData().getLoginKey();
+            ApiConst.IS_LOGIN = true;
+            ApiConst.PHONE = phone;
+            // 写入数据库
+            writeData();
+
+            EventBus.getDefault().post(new AppEvent("login_success", null));
+            getActivity().finish();
+        } else {
+            // 登陆失败
+            Toast.makeText(getContext(), "登陆失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void writeData() {
+        SQLite.delete()
+                .from(Personal.class)
+                .where(Personal_Table.phone.eq(phone))
+                .query();
+
+        Personal personal = new Personal();
+        personal.deviceId = deviceId;
+        personal.phone = phone;
+        personal.password = password;
+        personal.save();
+    }
+
+    private void showAlert() {
+        if (alertDialog != null) {
+            return;
+        }
+
+        View alertView = LayoutInflater.from(getContext()).inflate(R.layout.item_alert_progress, null, false);
+        alertDialog = new AlertDialog.Builder(getContext()).create();
+        alertDialog.show();
+        alertDialog.setContentView(alertView);
+        Window dialogWindow = alertDialog.getWindow();
+        dialogWindow.setGravity(Gravity.CENTER);
+        WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+        lp.width = ConvertUtils.dp2px(getContext(), 100);
+        lp.height = ConvertUtils.dp2px(getContext(), 100);
+        dialogWindow.setAttributes(lp);
+
+    }
+
+    private void hideAlert() {
+        if (alertDialog == null) {
+            return;
+        }
+        alertDialog.hide();
+        alertDialog = null;
+    }
+
+    // 隐藏键盘
+    private void hideInput(){
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etPassword.getWindowToken(), 0);
     }
 
 }

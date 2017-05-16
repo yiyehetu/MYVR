@@ -9,13 +9,18 @@ import android.widget.TextView;
 
 import com.yaya.myvr.R;
 import com.yaya.myvr.activity.MineActivity;
+import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseFragment;
+import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.util.LogUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 
 /**
  * Created by admin on 2017/5/2.
@@ -44,7 +49,6 @@ public class MineFragment extends BaseFragment {
     RelativeLayout rlSuggest;
     @BindView(R.id.rl_about)
     RelativeLayout rlAbout;
-    Unbinder unbinder;
 
     private static final String TAG = MineFragment.class.getSimpleName();
     private MediaLoadTask loadTask;
@@ -57,6 +61,13 @@ public class MineFragment extends BaseFragment {
     @Override
     protected void initView() {
         LogUtils.e("MineFragment init View...");
+        EventBus.getDefault().register(this);
+
+        if (ApiConst.IS_LOGIN) {
+            tvLogin.setText(ApiConst.PHONE);
+        } else {
+            tvLogin.setText("立即登陆");
+        }
     }
 
     @Override
@@ -128,6 +139,13 @@ public class MineFragment extends BaseFragment {
         return count;
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(AppEvent event) {
+        if ("login_success".equals(event.getMark())) {
+            tvLogin.setText(ApiConst.PHONE);
+        }
+    }
+
     @OnClick(R.id.ll_local)
     void clickLocalVideo() {
         MineActivity.start(getContext(), AppConst.LOCAL_VIDEO);
@@ -144,8 +162,13 @@ public class MineFragment extends BaseFragment {
     }
 
     @OnClick(R.id.ll_login)
-    void clickLogin(){
+    void clickLogin() {
         MineActivity.start(getContext(), AppConst.LOGIN);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        EventBus.getDefault().unregister(this);
+    }
 }

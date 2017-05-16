@@ -20,6 +20,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
+import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseFragment;
 import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.LoginInfo;
@@ -163,6 +164,8 @@ public class LoginFragment extends BaseFragment {
             ApiConst.PHONE = phone;
             // 写入数据库
             writeData();
+            // 记录登陆状态
+            VRApp.getAppInstance().getSpUtil().put("isLogin", true);
 
             EventBus.getDefault().post(new AppEvent("login_success", null));
             getActivity().finish();

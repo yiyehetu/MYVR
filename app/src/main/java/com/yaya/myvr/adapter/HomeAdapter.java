@@ -135,6 +135,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
         headerHolder.gvHeader.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position == btnList.size() - 1){
+                    return;
+                }
+
                 Intent intent = new Intent(context, TypeActivity.class);
                 intent.putExtra(AppConst.TYPE_POSITION, position);
                 context.startActivity(intent);

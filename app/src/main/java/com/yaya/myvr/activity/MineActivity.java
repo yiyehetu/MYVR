@@ -17,6 +17,7 @@ import com.yaya.myvr.fragment.CollectVideoFragment;
 import com.yaya.myvr.fragment.LocalVideoFragment;
 import com.yaya.myvr.fragment.LoginFragment;
 import com.yaya.myvr.fragment.RegisterFragment;
+import com.yaya.myvr.fragment.SettingFragment;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -92,6 +93,10 @@ public class MineActivity extends BaseActivity {
             case AppConst.REGISTER:
                 tvTitle.setText("注册");
                 fragment = new RegisterFragment();
+                break;
+            case AppConst.SETTING:
+                tvTitle.setText("设置");
+                fragment = new SettingFragment();
                 break;
         }
 

@@ -41,4 +41,5 @@ public class AppConst {
     public static final int ONLINE_VIDEO = 103;
     public static final int LOGIN = 104;
     public static final int REGISTER = 105;
+    public static final int SETTING = 106;
 }

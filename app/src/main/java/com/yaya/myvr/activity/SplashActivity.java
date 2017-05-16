@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
+import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseActivity;
 import com.yaya.myvr.bean.LoginInfo;
 import com.yaya.myvr.dao.Personal;
@@ -36,8 +37,6 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        setNetBaseMap();
-
     }
 
     private void setNetBaseMap() {
@@ -53,8 +52,15 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setNetBaseMap();
 
-        readData();
+        boolean isLogin = VRApp.getAppInstance().getSpUtil().getBoolean("isLogin");
+        if (isLogin) {
+            readData();
+        } else {
+            startTask();
+        }
+
     }
 
     private void readData() {

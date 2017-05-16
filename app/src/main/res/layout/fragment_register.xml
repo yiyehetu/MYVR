@@ -99,7 +99,6 @@
 
     </FrameLayout>
 
-
     <Button
         android:id="@+id/btn_register"
         style="?android:attr/borderlessButtonStyle"

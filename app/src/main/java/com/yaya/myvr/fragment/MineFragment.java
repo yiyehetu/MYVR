@@ -108,7 +108,7 @@ public class MineFragment extends BaseFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            tvLocal.setText("...");
+            tvLocal.setText("");
         }
 
         @Override
@@ -143,7 +143,10 @@ public class MineFragment extends BaseFragment {
     public void onEvent(AppEvent event) {
         if ("login_success".equals(event.getMark())) {
             tvLogin.setText(ApiConst.PHONE);
+        } else if ("exit".equals(event.getMark())) {
+            tvLogin.setText("立即登陆");
         }
+
     }
 
     @OnClick(R.id.ll_local)
@@ -163,7 +166,16 @@ public class MineFragment extends BaseFragment {
 
     @OnClick(R.id.ll_login)
     void clickLogin() {
-        MineActivity.start(getContext(), AppConst.LOGIN);
+        if (ApiConst.IS_LOGIN) {
+            MineActivity.start(getContext(), AppConst.SETTING);
+        } else {
+            MineActivity.start(getContext(), AppConst.LOGIN);
+        }
+    }
+
+    @OnClick(R.id.iv_setting)
+    void clickSetting(){
+        MineActivity.start(getContext(), AppConst.SETTING);
     }
 
     @Override

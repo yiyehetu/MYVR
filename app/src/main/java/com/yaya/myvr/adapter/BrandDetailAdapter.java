@@ -13,11 +13,17 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.MineActivity;
 import com.yaya.myvr.activity.VideoInfoActivity;
+import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.app.AppConst;
+import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.BrandBottomInfo;
 import com.yaya.myvr.bean.BrandTopInfo;
 import com.yaya.myvr.util.ConvertUtils;
+import com.yaya.myvr.util.LogUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +36,13 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
     private static final String TAG = BrandDetailAdapter.class.getSimpleName();
     private static final int HEADER = 100;
     private static final int DEFAULT = 101;
+    private static final String ATTENTIONED = "已关注";
+    private static final String ADD_ATTENTION = "+ 关注";
     private BrandTopInfo.DataBean topData;
     private List<BrandBottomInfo.DataBean> bottomData;
     private Context context;
     private LayoutInflater layoutInflater;
+    private TextView textView;
 
     public BrandDetailAdapter(BrandTopInfo.DataBean topData, List<BrandBottomInfo.DataBean> bottomData, Context context) {
         this.topData = topData;
@@ -46,6 +55,7 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
     public BrandDetailHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case HEADER:
+                LogUtils.e(TAG, "onCreateViewHolder..." + viewType);
                 View headerView = layoutInflater.inflate(R.layout.item_branddetail_header, parent, false);
                 BrandDetailHolder headerHolder = new BrandDetailHolder(headerView);
                 headerHolder.ivBrandimg = (ImageView) headerView.findViewById(R.id.iv_brandimg);
@@ -72,6 +82,7 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
                 }
                 return headerHolder;
             default:
+                LogUtils.e(TAG, "onCreateViewHolder..." + viewType);
                 View defaultView = layoutInflater.inflate(R.layout.item_branddetail_default, parent, false);
                 BrandDetailHolder defaultHolder = new BrandDetailHolder(defaultView);
                 defaultHolder.ivPic = (ImageView) defaultView.findViewById(R.id.iv_pic);
@@ -101,7 +112,7 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
      *
      * @param holder
      */
-    private void bindHeader(BrandDetailHolder holder) {
+    private void bindHeader(final BrandDetailHolder holder) {
         Glide.with(context)
                 .load(topData.getBrandImg())
                 .placeholder(R.drawable.icon_black_alpha_top_mask)
@@ -111,6 +122,33 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
         holder.tvProfile.setText(topData.getProfile());
         holder.tvAttention.setText("粉丝:" + topData.getAttention());
 
+        if(topData.isIsAttention()){
+            holder.tvFocus.setText(ATTENTIONED);
+        }else{
+            holder.tvFocus.setText(ADD_ATTENTION);
+        }
+
+        holder.tvFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ATTENTIONED.equals(holder.tvFocus.getText())){
+//                    holder.tvFocus.setText(ADD_ATTENTION);
+                    textView = holder.tvFocus;
+                    EventBus.getDefault().post(new AppEvent("attention", "removeBrandAttention"));
+                }else{
+                    // 登陆判断
+                    if(ApiConst.IS_LOGIN){
+//                        holder.tvFocus.setText(ATTENTIONED);
+                        textView = holder.tvFocus;
+                        EventBus.getDefault().post(new AppEvent("attention", "addBrandAttention"));
+                    }else{
+                        // 跳转登陆
+                        MineActivity.start(context, AppConst.LOGIN);
+                    }
+
+                }
+            }
+        });
     }
 
     private List<String> getTagArray(String tags) {
@@ -173,6 +211,20 @@ public class BrandDetailAdapter extends RecyclerView.Adapter<BrandDetailAdapter.
         } else {
             return DEFAULT;
         }
+    }
+
+    public void setAttentionUpdate() {
+        if(textView == null){
+            return;
+        }
+
+        if(ATTENTIONED.equals(textView.getText())){
+            textView.setText(ADD_ATTENTION);
+        }else{
+            textView.setText(ATTENTIONED);
+        }
+
+        textView = null;
     }
 
     static class BrandDetailHolder extends RecyclerView.ViewHolder {

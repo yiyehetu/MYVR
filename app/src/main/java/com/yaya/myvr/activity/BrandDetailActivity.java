@@ -21,11 +21,17 @@ import com.yaya.myvr.api.ApiManager;
 import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseActivity;
+import com.yaya.myvr.bean.AppEvent;
+import com.yaya.myvr.bean.AttentionInfo;
 import com.yaya.myvr.bean.BrandBottomInfo;
 import com.yaya.myvr.bean.BrandTopInfo;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +67,7 @@ public class BrandDetailActivity extends BaseActivity {
     private static final String TAG = BrandDetailActivity.class.getSimpleName();
     private Map<String, String> topMap = new HashMap<>();
     private Map<String, String> bottomMap = new HashMap<>();
+    private Map<String, String> attentionMap = new HashMap<>();
     private LinearLayoutManager layoutManager;
     // 底部数据集合
     private List<BrandBottomInfo.DataBean> bottomData = new ArrayList<>();
@@ -102,7 +109,7 @@ public class BrandDetailActivity extends BaseActivity {
                     firstView.getLocationInWindow(location);
 
                     int currY = Math.abs(location[1]);
-                    LogUtils.e(TAG, "currY = " + currY);
+//                    LogUtils.e(TAG, "currY = " + currY);
                     if (currY <= BASE_Y) {
                         isTransparent = true;
                         int alpha = (int) (currY / BASE_Y * 255);
@@ -134,6 +141,13 @@ public class BrandDetailActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private void requestData() {
@@ -145,11 +159,16 @@ public class BrandDetailActivity extends BaseActivity {
         topMap.putAll(ApiConst.BASE_MAP);
         topMap.put("cmd", "getBrandInfo");
         topMap.put("id", brandId);
+        topMap.put("phone", ApiConst.PHONE);
+
         bottomMap.putAll(ApiConst.BASE_MAP);
         bottomMap.put("cmd", "getVideoByCate");
         bottomMap.put("brandId", brandId);
         bottomMap.put("start", 0 + "");
         bottomMap.put("limit", 10 + "");
+
+        attentionMap.putAll(ApiConst.BASE_MAP);
+        attentionMap.put("brandId", brandId);
 
         requestTopData();
     }
@@ -261,5 +280,47 @@ public class BrandDetailActivity extends BaseActivity {
         srlBrand.setRefreshing(true);
         rlError.setVisibility(View.GONE);
         requestData();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(AppEvent event){
+        if("attention".equals(event.getMark())){
+            attentionMap.put("cmd", event.getData());
+            attentionMap.put("loginKey", ApiConst.LOGIN_KEY);
+            attentionMap.put("phone", ApiConst.PHONE);
+
+            requestAttentionData();
+        }
+    }
+
+    /**
+     * 请求关注
+     */
+    private void requestAttentionData() {
+        Subscription subscription = ApiManager.getInstance().getApiService().getAttentionInfo(attentionMap)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<AttentionInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        LogUtils.e(TAG, "onCompleted...");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LogUtils.e(TAG, "onError... e = " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(AttentionInfo attentionInfo) {
+                        LogUtils.e(TAG, "onNext... attentionInfo = " + attentionInfo);
+                        if(attentionInfo != null && attentionInfo.getErrCode() == 0){
+                            brandDetailAdapter.setAttentionUpdate();
+                        }
+                    }
+                });
+
+        subscriptionList.add(subscription);
     }
 }

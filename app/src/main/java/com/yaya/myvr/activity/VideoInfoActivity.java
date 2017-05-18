@@ -13,17 +13,23 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.adapter.VideoInfoAdapter;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
 import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseActivity;
+import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.RelativeInfo;
 import com.yaya.myvr.bean.VideoInfo;
+import com.yaya.myvr.dao.Favor;
+import com.yaya.myvr.dao.Favor_Table;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +47,6 @@ import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
  * 视频信息界面
  */
 public class VideoInfoActivity extends BaseActivity {
-    private static final String TAG = VideoInfoActivity.class.getSimpleName();
 
     @BindView(R.id.iv_back)
     ImageView ivBack;
@@ -82,6 +87,7 @@ public class VideoInfoActivity extends BaseActivity {
     @BindView(R.id.rv_relative)
     RecyclerView rvRelative;
 
+    private static final String TAG = VideoInfoActivity.class.getSimpleName();
     private String videoId;
     private VideoInfo.DataBean bean;
 
@@ -172,6 +178,15 @@ public class VideoInfoActivity extends BaseActivity {
                 tvDuration.setText("片长 : " + bean.getDuration());
                 tvFormat.setText("格式 : " + AppConst.DICT_FORMAT.get(bean.getFormat()));
                 tvProfile.setText(bean.getProfile());
+
+                // 本地读取是否喜欢
+                List<Favor> favorList = SQLite.select()
+                        .from(Favor.class)
+                        .where(Favor_Table.videoId.eq(bean.getId()))
+                        .queryList();
+                if(favorList != null && favorList.size() > 0){
+                    ivLike.setSelected(true);
+                }
             }
         }
     }
@@ -225,6 +240,11 @@ public class VideoInfoActivity extends BaseActivity {
             case R.id.iv_download:
                 break;
             case R.id.iv_like:
+                if(ApiConst.IS_LOGIN){
+                    switchLikeState();
+                }else{
+                    MineActivity.start(this, AppConst.LOGIN);
+                }
                 break;
             // 视频播放
             case R.id.ll_play:
@@ -234,5 +254,35 @@ public class VideoInfoActivity extends BaseActivity {
                 VideoActivity.start(this, AppConst.ONLINE_VIDEO, bean.getM3u8());
                 break;
         }
+    }
+
+    /**
+     * 切换喜欢状态
+     */
+    private void switchLikeState() {
+        if(bean == null){
+            return;
+        }
+
+        if(ivLike.isSelected()){
+            ivLike.setSelected(false);
+            // 删除
+            SQLite.delete()
+                    .from(Favor.class)
+                    .where(Favor_Table.videoId.eq(bean.getId()))
+                    .query();
+        }else{
+            ivLike.setSelected(true);
+            // 添加
+            Favor favor = new Favor();
+            favor.actor = bean.getActor();
+            favor.profile = bean.getProfile();
+            favor.m3u8 = bean.getM3u8();
+            favor.picture = bean.getPicture();
+            favor.title = bean.getTitle();
+            favor.videoId = bean.getId();
+            favor.save();
+        }
+        EventBus.getDefault().post(new AppEvent("update_favor", null));
     }
 }

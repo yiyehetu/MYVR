@@ -29,8 +29,8 @@ import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
  */
 
 public class LocalVideoFragment extends BaseFragment {
-    @BindView(R.id.rl_video)
-    RecyclerView rlVideo;
+    @BindView(R.id.rv_video)
+    RecyclerView rvVideo;
     @BindView(R.id.pb_progress)
     ProgressBar pbProgress;
     @BindView(R.id.ll_error)
@@ -48,13 +48,13 @@ public class LocalVideoFragment extends BaseFragment {
     @Override
     protected void initView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        rlVideo.setLayoutManager(layoutManager);
+        rvVideo.setLayoutManager(layoutManager);
     }
 
     @Override
     protected void initData() {
         localAdapter = new LocalVideoAdapter(getContext(), videoList);
-        rlVideo.setAdapter(localAdapter);
+        rvVideo.setAdapter(localAdapter);
 
         startTask();
     }

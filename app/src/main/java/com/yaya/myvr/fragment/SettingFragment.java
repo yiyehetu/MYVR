@@ -70,6 +70,8 @@ public class SettingFragment extends BaseFragment {
                     @Override
                     public void call(Long aLong) {
                         ApiConst.IS_LOGIN = false;
+                        ApiConst.PHONE = "";
+                        ApiConst.LOGIN_KEY = "";
                         VRApp.getAppInstance().getSpUtil().put("isLogin", false);
                         Toast.makeText(getContext().getApplicationContext(), "退出成功", Toast.LENGTH_SHORT).show();
                         EventBus.getDefault().post(new AppEvent("exit", null));

@@ -7,12 +7,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.activity.MineActivity;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseFragment;
 import com.yaya.myvr.bean.AppEvent;
+import com.yaya.myvr.dao.Favor;
 import com.yaya.myvr.util.LogUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -74,6 +76,7 @@ public class MineFragment extends BaseFragment {
     protected void initData() {
         LogUtils.e("MineFragment init Data...");
         startTask();
+        updateFavor();
     }
 
     @Override
@@ -88,9 +91,8 @@ public class MineFragment extends BaseFragment {
     }
 
     private void startTask() {
-        if (loadTask != null) {
-            return;
-        }
+        clearTask();
+
         loadTask = new MediaLoadTask();
         loadTask.execute();
     }
@@ -145,8 +147,21 @@ public class MineFragment extends BaseFragment {
             tvLogin.setText(ApiConst.PHONE);
         } else if ("exit".equals(event.getMark())) {
             tvLogin.setText("立即登陆");
+        } else if("update_favor".equals(event.getMark())){
+            updateFavor();
         }
 
+    }
+
+    /**
+     * 更新收藏
+     */
+    private void updateFavor() {
+        int count = SQLite.select()
+                .from(Favor.class)
+                .queryList()
+                .size();
+        tvCollect.setText(count + "");
     }
 
     @OnClick(R.id.ll_local)

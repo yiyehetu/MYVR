@@ -1,5 +1,6 @@
 package com.yaya.myvr.api;
 
+import com.yaya.myvr.bean.AttentionInfo;
 import com.yaya.myvr.bean.BrandBottomInfo;
 import com.yaya.myvr.bean.BrandInfo;
 import com.yaya.myvr.bean.BrandTopInfo;
@@ -79,4 +80,8 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("userApi")
     Observable<LoginInfo> getRegisterInfo(@QueryMap Map<String, String> map, @Field("password") String password, @Field("code") String code, @Field("phoneNumber") String phoneNumber);
+
+    // 关注
+    @GET("userApi")
+    Observable<AttentionInfo> getAttentionInfo(@QueryMap Map<String, String> map);
 }

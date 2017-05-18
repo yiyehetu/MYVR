@@ -67,6 +67,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
     private static final String TAG = VideoActivity.class.getSimpleName();
     private static final String POSITON = "position";
     private static final String PATH = "path";
+    private static final String FORMAT = "format";
     private MDVRLibrary mdvrLibrary;
     private VideoController videoController;
     private float duration;
@@ -76,6 +77,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
     private Subscription timerSubscription;
     private Subscription menuSubscription;
     private float prePositon = 0.0f;
+    private boolean is360 = true;
 
     @Override
     protected int getLayoutId() {
@@ -173,16 +175,22 @@ public class VideoActivity extends BaseActivity implements IControllerView {
             return;
         }
         String path = intent.getStringExtra(PATH);
+        String format = intent.getStringExtra(FORMAT);
 
-        initController(positon, path);
+        if(!"3".equals(format)){
+            is360 = false;
+            cbMode.setVisibility(View.GONE);
+        }
+
+        initController(positon, path, format);
     }
 
     /**
      * 初始化控制器
      */
-    private void initController(int position, String path) {
+    private void initController(int position, String path, String format) {
         videoController = new VideoController(this);
-        initVRlibrary();
+        initVRlibrary(format);
         videoController.initPlayer(mdvrLibrary);
 
         if (position == AppConst.ONLINE_VIDEO) {
@@ -199,7 +207,7 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         videoController.prepare();
     }
 
-    private void initVRlibrary() {
+    private void initVRlibrary(String format) {
         mdvrLibrary = MDVRLibrary.with(this)
                 .displayMode(MDVRLibrary.DISPLAY_MODE_GLASS)
                 .interactiveMode(MDVRLibrary.INTERACTIVE_MODE_MOTION_WITH_TOUCH)
@@ -218,6 +226,11 @@ public class VideoActivity extends BaseActivity implements IControllerView {
                     }
                 })
                 .build(svVideo);
+
+        if(!is360){
+            mdvrLibrary.switchDisplayMode(this, MDVRLibrary.DISPLAY_MODE_NORMAL);
+            mdvrLibrary.switchProjectionMode(this, MDVRLibrary.PROJECTION_MODE_PLANE_FIT);
+        }
     }
 
     @Override
@@ -272,7 +285,9 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         clearMenuTimer();
         btnBack.setVisibility(View.VISIBLE);
         rlMenu.setVisibility(View.VISIBLE);
-        cbMode.setVisibility(View.VISIBLE);
+        if(is360){
+            cbMode.setVisibility(View.VISIBLE);
+        }
         isShowing = true;
     }
 
@@ -346,12 +361,16 @@ public class VideoActivity extends BaseActivity implements IControllerView {
         if (isShowing) {
             btnBack.setVisibility(View.GONE);
             rlMenu.setVisibility(View.GONE);
-            cbMode.setVisibility(View.GONE);
+            if(is360){
+                cbMode.setVisibility(View.GONE);
+            }
             isShowing = false;
         } else {
             btnBack.setVisibility(View.VISIBLE);
             rlMenu.setVisibility(View.VISIBLE);
-            cbMode.setVisibility(View.VISIBLE);
+            if(is360){
+                cbMode.setVisibility(View.VISIBLE);
+            }
             isShowing = true;
             startMenuTimer();
         }
@@ -367,7 +386,9 @@ public class VideoActivity extends BaseActivity implements IControllerView {
                     public void call(Long aLong) {
                         btnBack.setVisibility(View.GONE);
                         rlMenu.setVisibility(View.GONE);
-                        cbMode.setVisibility(View.GONE);
+                        if(is360){
+                            cbMode.setVisibility(View.GONE);
+                        }
                         isShowing = false;
                     }
                 });
@@ -395,10 +416,11 @@ public class VideoActivity extends BaseActivity implements IControllerView {
      * @param context
      * @param position
      */
-    public static void start(Context context, int position, String path) {
+    public static void start(Context context, int position, String path, String format) {
         Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra(POSITON, position);
         intent.putExtra(PATH, path);
+        intent.putExtra(FORMAT, format);
         context.startActivity(intent);
     }
 

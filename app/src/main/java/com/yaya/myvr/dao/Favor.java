@@ -31,6 +31,9 @@ public class Favor extends BaseModel {
     @Column
     public String m3u8;
 
+    @Column
+    public String format;
+
     @Override
     public String toString() {
         return "Favor{" +
@@ -41,6 +44,7 @@ public class Favor extends BaseModel {
                 ", actor='" + actor + '\'' +
                 ", profile='" + profile + '\'' +
                 ", m3u8='" + m3u8 + '\'' +
+                ", format='" + format + '\'' +
                 '}';
     }
 }

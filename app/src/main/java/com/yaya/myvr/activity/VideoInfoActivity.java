@@ -251,7 +251,8 @@ public class VideoInfoActivity extends BaseActivity {
                 if(bean == null){
                     return;
                 }
-                VideoActivity.start(this, AppConst.ONLINE_VIDEO, bean.getM3u8());
+
+                VideoActivity.start(this, AppConst.ONLINE_VIDEO, bean.getM3u8(), bean.getFormat());
                 break;
         }
     }
@@ -281,6 +282,7 @@ public class VideoInfoActivity extends BaseActivity {
             favor.picture = bean.getPicture();
             favor.title = bean.getTitle();
             favor.videoId = bean.getId();
+            favor.format = bean.getFormat();
             favor.save();
         }
         EventBus.getDefault().post(new AppEvent("update_favor", null));

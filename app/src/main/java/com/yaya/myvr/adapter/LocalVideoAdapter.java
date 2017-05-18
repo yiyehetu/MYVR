@@ -52,7 +52,7 @@ public class LocalVideoAdapter extends RecyclerView.Adapter<LocalVideoAdapter.Lo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VideoActivity.start(context, AppConst.LOCAL_VIDEO, video.getPath());
+                VideoActivity.start(context, AppConst.LOCAL_VIDEO, video.getPath(), "3");
             }
         });
     }

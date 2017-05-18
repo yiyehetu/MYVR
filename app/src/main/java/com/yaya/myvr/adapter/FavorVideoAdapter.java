@@ -57,7 +57,7 @@ public class FavorVideoAdapter extends RecyclerView.Adapter<FavorVideoAdapter.Fa
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VideoActivity.start(context, AppConst.LOCAL_VIDEO, favor.m3u8);
+                VideoActivity.start(context, AppConst.LOCAL_VIDEO, favor.m3u8, favor.format);
             }
         });
     }

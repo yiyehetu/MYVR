@@ -56,7 +56,6 @@ public class MineActivity extends BaseActivity {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fl_content, getFragment(position)).commit();
-
     }
 
     @OnClick(R.id.iv_back)
@@ -92,7 +91,11 @@ public class MineActivity extends BaseActivity {
                 break;
             case AppConst.REGISTER:
                 tvTitle.setText("注册");
-                fragment = new RegisterFragment();
+                fragment = RegisterFragment.getInstance(AppConst.REGISTER);
+                break;
+            case AppConst.RESET:
+                tvTitle.setText("重置密码");
+                fragment = RegisterFragment.getInstance(AppConst.RESET);
                 break;
             case AppConst.SETTING:
                 tvTitle.setText("设置");

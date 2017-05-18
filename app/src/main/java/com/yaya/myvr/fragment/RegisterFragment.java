@@ -2,6 +2,7 @@ package com.yaya.myvr.fragment;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -61,12 +62,29 @@ public class RegisterFragment extends BaseFragment {
     @BindView(R.id.btn_register)
     Button btnRegister;
 
+    private static final String POSITON = "position";
     private AlertDialog alertDialog;
     private String phone;
     private String sms;
     private String password;
     private Subscription countSubscription;
     private Map<String, String> smsMap = new HashMap<>();
+    private Map<String, String> registerMap = new HashMap<>();
+
+
+    /**
+     * 静态方法获得实例
+     * 区分注册与重置密码
+     * @param position
+     * @return
+     */
+    public static RegisterFragment getInstance(int position){
+        RegisterFragment fragment = new RegisterFragment();
+        Bundle args = new Bundle();
+        args.putInt(POSITON, position);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
 
     @Override
@@ -94,7 +112,22 @@ public class RegisterFragment extends BaseFragment {
     @Override
     protected void initData() {
         smsMap.putAll(ApiConst.BASE_MAP);
-        smsMap.put("cmd", "getRegSmsCode");
+        registerMap.putAll(ApiConst.BASE_MAP);
+
+        int position = getArguments().getInt(POSITON);
+        switch (position) {
+            case AppConst.REGISTER :
+                smsMap.put("cmd", "getRegSmsCode");
+                registerMap.put("cmd", "userReg");
+                btnRegister.setText("注册");
+                break;
+            case AppConst.RESET :
+                smsMap.put("cmd", "getResetPassSmsCode");
+                registerMap.put("cmd", "resetUserPass");
+                btnRegister.setText("重置");
+                break;
+        }
+
     }
 
     @OnClick(R.id.tv_sms)
@@ -156,11 +189,7 @@ public class RegisterFragment extends BaseFragment {
      * 请求注册
      */
     private void requestRegister() {
-        Map<String, String> map = new HashMap<>();
-        map.putAll(ApiConst.BASE_MAP);
-        map.put("cmd", "userReg");
-
-        Subscription subscription = ApiManager.getInstance().getApiService().getRegisterInfo(map, password, sms, phone)
+        Subscription subscription = ApiManager.getInstance().getApiService().getRegisterInfo(registerMap, password, sms, phone)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -179,6 +208,7 @@ public class RegisterFragment extends BaseFragment {
                     @Override
                     public void onNext(LoginInfo registerInfo) {
                         LogUtils.e(TAG, "onNext... registerInfo = " + registerInfo);
+                        hideAlert();
                         bindRegisterInfo(registerInfo);
                     }
                 });
@@ -193,9 +223,8 @@ public class RegisterFragment extends BaseFragment {
      */
     private void bindRegisterInfo(LoginInfo registerInfo) {
         if (registerInfo != null) {
-            hideAlert();
             if (registerInfo.getErrCode() == 0) {
-                Toast.makeText(getContext().getApplicationContext(), "注册成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext().getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
                 // 跳转登陆
                 MineActivity.start(getContext(), AppConst.LOGIN);
                 getActivity().finish();
@@ -221,7 +250,7 @@ public class RegisterFragment extends BaseFragment {
                             clearTimer();
                         } else {
                             tvSms.setSelected(true);
-                            tvSms.setText(time + "");
+                            tvSms.setText(time + "s后重试");
                         }
                     }
                 });

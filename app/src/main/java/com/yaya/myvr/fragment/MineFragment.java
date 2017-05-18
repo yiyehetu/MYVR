@@ -73,18 +73,18 @@ public class MineFragment extends BaseFragment {
     @Override
     protected void initData() {
         LogUtils.e("MineFragment init Data...");
+        startTask();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        startTask();
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        clearTask();
     }
 
     private void startTask() {
@@ -181,6 +181,7 @@ public class MineFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        clearTask();
         EventBus.getDefault().unregister(this);
     }
 }

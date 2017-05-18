@@ -18,14 +18,15 @@ import android.widget.Toast;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.MineActivity;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseFragment;
 import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.LoginInfo;
 import com.yaya.myvr.dao.Personal;
-import com.yaya.myvr.dao.Personal_Table;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.EncryptUtils;
 import com.yaya.myvr.util.LogUtils;
@@ -92,6 +93,12 @@ public class LoginFragment extends BaseFragment {
     protected void initData() {
         map.putAll(ApiConst.BASE_MAP);
         map.put("cmd", "userLogin");
+    }
+
+    @OnClick(R.id.tv_forget)
+    void forget(){
+        MineActivity.start(getContext(), AppConst.RESET);
+        getActivity().finish();
     }
 
     @OnClick(R.id.btn_login)
@@ -176,9 +183,9 @@ public class LoginFragment extends BaseFragment {
     }
 
     private void writeData() {
+        // 删除先前记录
         SQLite.delete()
                 .from(Personal.class)
-                .where(Personal_Table.phone.eq(phone))
                 .query();
 
         Personal personal = new Personal();
@@ -203,7 +210,6 @@ public class LoginFragment extends BaseFragment {
         lp.width = ConvertUtils.dp2px(getContext(), 100);
         lp.height = ConvertUtils.dp2px(getContext(), 100);
         dialogWindow.setAttributes(lp);
-
     }
 
     private void hideAlert() {

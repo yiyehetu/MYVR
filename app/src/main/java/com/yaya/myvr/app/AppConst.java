@@ -42,4 +42,5 @@ public class AppConst {
     public static final int LOGIN = 104;
     public static final int REGISTER = 105;
     public static final int SETTING = 106;
+    public static final int RESET = 107;
 }

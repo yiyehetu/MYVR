@@ -41,7 +41,6 @@
             android:drawableLeft="@drawable/icon_message_green"
             android:drawablePadding="10dp"
             android:hint="请填写验证码"
-            android:inputType="textPassword"
             android:paddingBottom="10dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"

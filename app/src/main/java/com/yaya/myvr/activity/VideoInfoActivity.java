@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -184,7 +185,7 @@ public class VideoInfoActivity extends BaseActivity {
                         .from(Favor.class)
                         .where(Favor_Table.videoId.eq(bean.getId()))
                         .queryList();
-                if(favorList != null && favorList.size() > 0){
+                if (favorList != null && favorList.size() > 0) {
                     ivLike.setSelected(true);
                 }
             }
@@ -230,49 +231,60 @@ public class VideoInfoActivity extends BaseActivity {
         }
     }
 
+    @OnClick(R.id.iv_back)
+    void clickBack() {
+        finish();
+    }
 
-    @OnClick({R.id.iv_back, R.id.iv_download, R.id.iv_like, R.id.ll_play})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.iv_back:
-                finish();
-                break;
-            case R.id.iv_download:
-                break;
-            case R.id.iv_like:
-                if(ApiConst.IS_LOGIN){
-                    switchLikeState();
-                }else{
-                    MineActivity.start(this, AppConst.LOGIN);
-                }
-                break;
-            // 视频播放
-            case R.id.ll_play:
-                if(bean == null){
-                    return;
-                }
-
-                VideoActivity.start(this, AppConst.ONLINE_VIDEO, bean.getM3u8(), bean.getFormat());
-                break;
+    @OnClick(R.id.iv_download)
+    void clickDownload() {
+        if (bean == null) {
+            return;
         }
+        download();
+    }
+
+    @OnClick(R.id.iv_like)
+    void clickLike() {
+        if (ApiConst.IS_LOGIN) {
+            switchLikeState();
+        } else {
+            MineActivity.start(this, AppConst.LOGIN);
+        }
+    }
+
+    @OnClick(R.id.ll_play)
+    void clickPlay() {
+        if (bean == null) {
+            return;
+        }
+        VideoActivity.start(this, AppConst.ONLINE_VIDEO, bean.getM3u8(), bean.getFormat());
+    }
+
+    private void download() {
+        String m3u8 = bean.getM3u8();
+        if (TextUtils.isEmpty(m3u8)) {
+            return;
+        }
+        ivDownload.setSelected(true);
     }
 
     /**
      * 切换喜欢状态
      */
     private void switchLikeState() {
-        if(bean == null){
+        if (bean == null) {
             return;
         }
 
-        if(ivLike.isSelected()){
+        if (ivLike.isSelected()) {
             ivLike.setSelected(false);
             // 删除
             SQLite.delete()
                     .from(Favor.class)
                     .where(Favor_Table.videoId.eq(bean.getId()))
                     .query();
-        }else{
+        } else {
             ivLike.setSelected(true);
             // 添加
             Favor favor = new Favor();

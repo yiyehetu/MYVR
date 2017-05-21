@@ -1,5 +1,7 @@
 package com.yaya.myvr.app;
 
+import android.util.SparseArray;
+
 import com.yaya.myvr.bean.DictInfo;
 import com.yaya.myvr.util.ConvertUtils;
 
@@ -28,6 +30,7 @@ public class AppConst {
     public static final Map<String, String> DICT_FORMAT = new HashMap<>();
     public static final Map<String, String> DICT_QUALITY = new HashMap<>();
     public static final List<DictInfo.DataBean.CategoryBean> DICT_CATEGORY = new ArrayList<>();
+
     public static boolean IS_DICT_REQUESTED = false;
 
     public static final String TYPE_POSITION = "type_postion";
@@ -43,4 +46,12 @@ public class AppConst {
     public static final int REGISTER = 105;
     public static final int SETTING = 106;
     public static final int RESET = 107;
+
+    public static final SparseArray<String> DOWNLOAD_STATUS = new SparseArray<>();
+    // 待下载
+    public static final int IDLE = 108;
+    // 下载中
+    public static final int DOWNLOADING = 109;
+    public static final int DOWNLOAD_PAUSE = 110;
+    public static final int DOWNLOADED = 111;
 }

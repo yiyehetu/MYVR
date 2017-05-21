@@ -6,14 +6,18 @@ import android.os.Bundle;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.liulishuo.filedownloader.BaseDownloadTask;
+import com.liulishuo.filedownloader.FileDownloadListener;
+import com.liulishuo.filedownloader.FileDownloadQueueSet;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.adapter.VideoInfoAdapter;
@@ -24,14 +28,24 @@ import com.yaya.myvr.base.BaseActivity;
 import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.RelativeInfo;
 import com.yaya.myvr.bean.VideoInfo;
+import com.yaya.myvr.bean.VideoPath;
 import com.yaya.myvr.dao.Favor;
 import com.yaya.myvr.dao.Favor_Table;
+import com.yaya.myvr.dao.Task;
+import com.yaya.myvr.dao.Task_Table;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider;
+import com.yaya.myvr.widget.VideoCacheTask;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -262,11 +276,210 @@ public class VideoInfoActivity extends BaseActivity {
     }
 
     private void download() {
-        String m3u8 = bean.getM3u8();
-        if (TextUtils.isEmpty(m3u8)) {
-            return;
+        List<Task> tasks = SQLite.select()
+                .from(Task.class)
+                .where(Task_Table.videoId.eq(bean.getId()))
+                .queryList();
+
+        if (tasks != null && tasks.size() > 0) {
+            Toast.makeText(VideoInfoActivity.this, "已在缓存列表中", Toast.LENGTH_SHORT).show();
+        } else {
+            Task task = new Task();
+            task.videoId = bean.getId();
+            task.picture = bean.getPicture();
+            task.m3u8 = bean.getM3u8();
+            task.format = bean.getFormat();
+            task.profile = bean.getProfile();
+            task.title = bean.getTitle();
+            task.progress = 0;
+            task.status = AppConst.IDLE;
+            task.save();
+            VideoCacheTask.getInstance().addTask(task);
+            EventBus.getDefault().post(new AppEvent("update_cache", null));
+            Toast.makeText(VideoInfoActivity.this, "添加缓存成功", Toast.LENGTH_SHORT).show();
         }
-        ivDownload.setSelected(true);
+
+
+//        final String cacheDir = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
+//                .append(File.separator)
+//                .append(ApiConst.VIDEO_CACHE)
+//                .append(File.separator)
+//                .append(bean.getId())
+//                .append(File.separator)
+//                .toString();
+//        final String path = cacheDir + "origin.m3u8";
+//
+//        LogUtils.e(TAG, "path = " + path);
+//
+//        FileDownloader.getImpl().create(m3u8)
+//                .setPath(path)
+//                .setListener(new FileDownloadListener() {
+//                    @Override
+//                    protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+//                        LogUtils.e(TAG, "pending...soFarBytes = " + soFarBytes + ", totalBytes = " + totalBytes);
+//                    }
+//
+//                    @Override
+//                    protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+//                        LogUtils.e(TAG, "progress...soFarBytes = " + soFarBytes + ", totalBytes = " + totalBytes);
+//                    }
+//
+//                    @Override
+//                    protected void completed(BaseDownloadTask task) {
+//                        ivDownload.setSelected(true);
+//                        LogUtils.e(TAG, "completed..." + task.getSmallFileTotalBytes());
+//                        List<VideoPath> pathList = readData(path, cacheDir);
+//                        if (pathList != null && pathList.size() > 0) {
+//                            downloadAllFile(pathList);
+//                        }
+//                    }
+//
+//                    @Override
+//                    protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+//
+//                    }
+//
+//                    @Override
+//                    protected void error(BaseDownloadTask task, Throwable e) {
+//                        ivDownload.setSelected(false);
+//                        LogUtils.e(TAG, "error..." + e.getMessage());
+//                    }
+//
+//                    @Override
+//                    protected void warn(BaseDownloadTask task) {
+//
+//                    }
+//                }).start();
+    }
+
+    private void downloadAllFile(List<VideoPath> pathList) {
+        final FileDownloadQueueSet queueSet = new FileDownloadQueueSet(downloadListener);
+
+        final List<BaseDownloadTask> tasks = new ArrayList<>();
+        for (int i = 0; i < pathList.size(); i++) {
+            BaseDownloadTask task = FileDownloader.getImpl()
+                    .create(pathList.get(i).getOriginPath())
+                    .setPath(pathList.get(i).getNewPath())
+                    .setTag(i);
+            tasks.add(task);
+        }
+
+//        queueSet.disableCallbackProgressTimes();
+        // do not want each task's download progress's callback,
+        // we just consider which task will completed.
+
+        // auto retry 1 time if download fail
+        queueSet.setAutoRetryTimes(1);
+        queueSet.downloadTogether(tasks);
+        queueSet.start();
+    }
+
+    final FileDownloadListener downloadListener = new FileDownloadListener() {
+        @Override
+        protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+            LogUtils.e(TAG, "tag:" + task.getTag() + "_pending...soFarBytes = " + soFarBytes + ", totalBytes = " + totalBytes);
+        }
+
+        @Override
+        protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+            LogUtils.e(TAG, "tag:" + task.getTag() + "_progress...soFarBytes = " + soFarBytes + ", totalBytes = " + totalBytes);
+        }
+
+        @Override
+        protected void completed(BaseDownloadTask task) {
+            LogUtils.e(TAG, "tag:" + task.getTag() + "_completed...");
+        }
+
+        @Override
+        protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+
+        }
+
+        @Override
+        protected void error(BaseDownloadTask task, Throwable e) {
+
+        }
+
+        @Override
+        protected void warn(BaseDownloadTask task) {
+
+        }
+
+        @Override
+        protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
+            LogUtils.e(TAG, "tag:" + etag + "connected...soFarBytes = " + soFarBytes + ", totalBytes = " + totalBytes);
+        }
+    };
+
+
+    private List<VideoPath> readData(String path, String cacheDir) {
+        List<VideoPath> list = new ArrayList<>();
+        int count = 0;
+
+        File newFile = new File(cacheDir + "new.m3u8");
+        FileReader fileReader = null;
+        BufferedReader bufferedReader = null;
+        FileWriter fileWriter = null;
+        try {
+            fileReader = new FileReader(new File(path));
+            bufferedReader = new BufferedReader(fileReader);
+            if (!newFile.exists()) {
+                newFile.createNewFile();
+            }
+            fileWriter = new FileWriter(newFile);
+
+            String buffer = null;
+            while ((buffer = bufferedReader.readLine()) != null) {
+                if (buffer.length() > 0 && buffer.startsWith("http://")) {
+                    // 添加到集合
+                    VideoPath videoPath = new VideoPath();
+                    videoPath.setOriginPath(buffer);
+                    String newPath;
+                    if (buffer.endsWith("ts")) {
+                        newPath = cacheDir + count + ".ts";
+                    } else {
+                        newPath = cacheDir + count + ".ds";
+                    }
+                    videoPath.setNewPath(newPath);
+                    list.add(videoPath);
+                    count++;
+
+                    // 写入本地
+                    LogUtils.e(TAG, "newPath = " + newPath);
+                    fileWriter.write(newPath + "\n");
+                } else {
+                    fileWriter.write(buffer + "\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return list;
     }
 
     /**

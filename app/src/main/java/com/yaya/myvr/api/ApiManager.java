@@ -1,8 +1,9 @@
 package com.yaya.myvr.api;
 
-import com.yaya.myvr.app.VRApp;
+import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.yaya.myvr.util.LogUtils;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
@@ -22,7 +23,13 @@ public class ApiManager {
 
     private ApiManager(){
         // 缓存
-        Cache cache = new Cache(VRApp.getAppInstance().getExternalCacheDir(), 1024 * 1024 * 10);
+        String path = FileDownloadUtils.getDefaultSaveRootPath() + File.separator + "retrofit";
+        File file = new File(path);
+        if(!file.exists()){
+            file.mkdirs();
+        }
+
+        Cache cache = new Cache(file, 1024 * 1024 * 10);
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(8, TimeUnit.SECONDS)
                 .readTimeout(8, TimeUnit.SECONDS)

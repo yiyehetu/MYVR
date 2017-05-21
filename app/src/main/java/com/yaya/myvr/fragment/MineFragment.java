@@ -15,6 +15,7 @@ import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseFragment;
 import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.dao.Favor;
+import com.yaya.myvr.dao.Task;
 import com.yaya.myvr.util.LogUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -77,6 +78,7 @@ public class MineFragment extends BaseFragment {
         LogUtils.e("MineFragment init Data...");
         startTask();
         updateFavor();
+        updateCache();
     }
 
     @Override
@@ -149,6 +151,8 @@ public class MineFragment extends BaseFragment {
             tvLogin.setText("立即登陆");
         } else if("update_favor".equals(event.getMark())){
             updateFavor();
+        } else if("update_cache".equals(event.getMark())){
+            updateCache();
         }
 
     }
@@ -162,6 +166,17 @@ public class MineFragment extends BaseFragment {
                 .queryList()
                 .size();
         tvCollect.setText(count + "");
+    }
+
+    /**
+     * 更新收藏
+     */
+    private void updateCache() {
+        int count = SQLite.select()
+                .from(Task.class)
+                .queryList()
+                .size();
+        tvCache.setText(count + "");
     }
 
     @OnClick(R.id.ll_local)

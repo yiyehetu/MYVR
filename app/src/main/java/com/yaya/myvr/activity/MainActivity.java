@@ -184,8 +184,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-//        LogUtils.e(TAG, "onSaveInstanceState...");
+        LogUtils.e(TAG, "onSaveInstanceState...");
         // 记录当前的position
         outState.putInt("position", currPositon);
     }
+
 }

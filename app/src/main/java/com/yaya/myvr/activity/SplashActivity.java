@@ -6,10 +6,13 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.api.ApiManager;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.app.VRApp;
 import com.yaya.myvr.base.BaseActivity;
 import com.yaya.myvr.bean.LoginInfo;
 import com.yaya.myvr.dao.Personal;
+import com.yaya.myvr.dao.Task;
+import com.yaya.myvr.dao.Task_Table;
 import com.yaya.myvr.util.LogUtils;
 
 import java.util.HashMap;
@@ -46,6 +49,25 @@ public class SplashActivity extends BaseActivity {
         ApiConst.BASE_MAP.put("channel", "106");
         ApiConst.BASE_MAP.put("build", "003");
         ApiConst.BASE_MAP.put("apiVer", "2");
+    }
+
+    private void setDownLoadState() {
+        AppConst.DOWNLOAD_STATUS.put(AppConst.IDLE, "待下载...");
+        AppConst.DOWNLOAD_STATUS.put(AppConst.DOWNLOADING, "下载中...");
+        AppConst.DOWNLOAD_STATUS.put(AppConst.DOWNLOAD_PAUSE, "下载暂停...");
+        AppConst.DOWNLOAD_STATUS.put(AppConst.DOWNLOADED, "下载完成...");
+
+        List<Task> tasks = SQLite.select()
+                .from(Task.class)
+                .where(Task_Table.status.eq(AppConst.DOWNLOADING))
+                .queryList();
+        if (tasks != null && tasks.size() > 0) {
+            for(int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                task.status = AppConst.DOWNLOAD_PAUSE;
+                task.update();
+            }
+        }
 
     }
 
@@ -53,6 +75,7 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setNetBaseMap();
+        setDownLoadState();
 
         boolean isLogin = VRApp.getAppInstance().getSpUtil().getBoolean("isLogin");
         if (isLogin) {

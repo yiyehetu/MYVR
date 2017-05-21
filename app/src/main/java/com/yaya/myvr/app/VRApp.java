@@ -2,6 +2,7 @@ package com.yaya.myvr.app;
 
 import android.app.Application;
 
+import com.liulishuo.filedownloader.FileDownloader;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.squareup.leakcanary.LeakCanary;
@@ -36,6 +37,8 @@ public class VRApp extends Application {
         FlowManager.init(new FlowConfig.Builder(this).build());
         LogUtils.init(true, 'v', "TAG");
         spUtils = new SpUtils("vr_data", getApplicationContext());
+        // 初始化下载引擎
+        FileDownloader.init(getApplicationContext());
     }
 
     public SpUtils getSpUtil() {

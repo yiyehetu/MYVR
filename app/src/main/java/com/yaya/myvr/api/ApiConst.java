@@ -15,4 +15,5 @@ public class ApiConst {
     public static boolean IS_LOGIN = false;
     public static String LOGIN_KEY = "";
     public static String PHONE = "";
+    public static final String VIDEO_CACHE = "videoCache";
 }

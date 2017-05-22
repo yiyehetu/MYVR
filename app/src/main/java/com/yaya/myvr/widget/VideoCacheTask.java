@@ -50,6 +50,12 @@ public class VideoCacheTask {
     // 进度集合
     private Map<String, Integer> progressMap = new HashMap<>();
 
+    public static final String START = "start";
+    public static final String PROGRESS = "progress";
+    public static final String PAUSE = "pause";
+    public static final String COMPLETED = "completed";
+
+
     private VideoCacheTask() {
     }
 
@@ -138,18 +144,18 @@ public class VideoCacheTask {
                 LogUtils.e(TAG, "m3u8 completed...");
 
                 Integer progress = progressMap.get(currTask.videoId);
-                if(progress == null){
+                if (progress == null) {
+                    // 第一次下载
                     progressMap.put(currTask.videoId, 0);
                     currTask.progress = 0;
                     currTask.status = AppConst.DOWNLOADING;
                     currTask.update();
-                    EventBus.getDefault().post(new AppEvent("download_pending", new CacheProgress(currTask.videoId)));
-                }else{
+                    EventBus.getDefault().post(new AppEvent(START, new CacheProgress(currTask.videoId, 0, AppConst.DOWNLOADING)));
+                } else {
+                    // 继续下载
                     currTask.status = AppConst.DOWNLOADING;
-                    EventBus.getDefault().post(new AppEvent("download_progress", new CacheProgress(currTask.videoId, progress)));
+                    EventBus.getDefault().post(new AppEvent(PROGRESS, new CacheProgress(currTask.videoId, progress, AppConst.DOWNLOADING)));
                 }
-
-
 
                 List<VideoPath> pathList = readM3u8Data(path, cacheDir);
                 if (pathList != null && pathList.size() > 0) {
@@ -326,15 +332,18 @@ public class VideoCacheTask {
                 currTask.progress = currProgress;
                 currTask.update();
 
-                if(progressMap.get(currTask.videoId) < currProgress){
+                if (progressMap.get(currTask.videoId) < currProgress) {
                     progressMap.put(currTask.videoId, currProgress);
-                    EventBus.getDefault().post(new AppEvent("download_progress", new CacheProgress(currTask.videoId, currProgress)));
+                    // 发送更新
+                    EventBus.getDefault().post(new AppEvent(PROGRESS, new CacheProgress(currTask.videoId, currProgress, AppConst.DOWNLOADING)));
                 }
 
                 // 继续下一个任务
                 if (currProgress == 100) {
                     currTask.status = AppConst.DOWNLOADED;
                     currTask.update();
+                    // 发送更新
+                    EventBus.getDefault().post(new AppEvent(COMPLETED, new CacheProgress(currTask.videoId, 100, AppConst.DOWNLOADED)));
                     startTask();
                 }
             }
@@ -349,12 +358,13 @@ public class VideoCacheTask {
                 if (isPause) {
                     return;
                 }
-
                 isPause = true;
+
+
                 LogUtils.e(TAG, "tag:" + task.getTag() + "_paused..." + "progress = " + currProgress);
                 currTask.status = AppConst.DOWNLOAD_PAUSE;
                 currTask.update();
-                EventBus.getDefault().post(new AppEvent("download_pause", new CacheProgress(currTask.videoId, currProgress)));
+                EventBus.getDefault().post(new AppEvent(PAUSE, new CacheProgress(currTask.videoId, currProgress, AppConst.DOWNLOAD_PAUSE)));
 
                 // 开启下一个任务
                 if (isStart) {
@@ -386,9 +396,6 @@ public class VideoCacheTask {
 
         final FileDownloadQueueSet queueSet = new FileDownloadQueueSet(downloadListener);
         queueSet.disableCallbackProgressTimes();
-        // do not want each task's download progress's callback,
-        // we just consider which task will completed.
-        // auto retry 1 time if download fail
         queueSet.setAutoRetryTimes(1);
         queueSet.downloadSequentially(tasks);
         queueSet.start();

@@ -9,14 +9,26 @@ import android.widget.ProgressBar;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.adapter.CacheVideoAdapter;
+import com.yaya.myvr.app.AppConst;
 import com.yaya.myvr.base.BaseFragment;
+import com.yaya.myvr.bean.AppEvent;
+import com.yaya.myvr.bean.CacheProgress;
 import com.yaya.myvr.dao.Task;
+import com.yaya.myvr.util.LogUtils;
+import com.yaya.myvr.widget.VideoCacheTask;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
+
+import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 
 /**
  * Created by admin on 2017/5/15.
@@ -31,6 +43,8 @@ public class CacheVideoFragment extends BaseFragment {
     LinearLayout llError;
     private LinearLayoutManager layoutManager;
     private CacheVideoAdapter cacheVideoAdapter;
+    private Map<String, Integer> positionMap = new HashMap<>();
+    private List<Task> taskList = new ArrayList<>();
 
     @Override
     protected int getLayoutId() {
@@ -41,6 +55,8 @@ public class CacheVideoFragment extends BaseFragment {
     protected void initView() {
         layoutManager = new LinearLayoutManager(getContext());
         rvVideo.setLayoutManager(layoutManager);
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -50,26 +66,42 @@ public class CacheVideoFragment extends BaseFragment {
                 .queryList();
         pbProgress.setVisibility(View.GONE);
 
-//        final Map<String, Integer> map = new HashMap<>();
-//        for (int index = 0; index < tasks.size(); index++) {
-//            map.put(tasks.get(index).videoId, index);
-//        }
-
         if (tasks.size() > 0) {
-            cacheVideoAdapter = new CacheVideoAdapter(getContext(), tasks);
-            rvVideo.setAdapter(cacheVideoAdapter);
+            taskList.addAll(tasks);
+            for (int i = 0; i < taskList.size(); i++) {
+                positionMap.put(taskList.get(i).videoId, i);
+            }
 
-            EventBus.getDefault().register(cacheVideoAdapter);
+            cacheVideoAdapter = new CacheVideoAdapter(getContext(), taskList);
+            rvVideo.setAdapter(cacheVideoAdapter);
         } else {
             llError.setVisibility(View.VISIBLE);
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(AppEvent event) {
+        String mark = event.getMark();
+        if (VideoCacheTask.PROGRESS.equals(mark) || VideoCacheTask.PAUSE.equals(mark) || VideoCacheTask.START.equals(mark) || VideoCacheTask.COMPLETED.equals(mark)) {
+            CacheProgress data = (CacheProgress) event.getObj();
+            String videoId = data.getVideoId();
+            int progress = data.getProgress();
+            int status = data.getStatus();
+            String state = AppConst.DOWNLOAD_STATUS.get(status) + progress + "%";
+            LogUtils.e(TAG, "state = " + state);
+
+            int postion = positionMap.get(videoId);
+            Task task = taskList.get(postion);
+            task.status = status;
+            task.progress = progress;
+            cacheVideoAdapter.notifyItemChanged(postion, CacheVideoAdapter.PAYLOAD);
+        }
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if(cacheVideoAdapter != null){
-            EventBus.getDefault().unregister(cacheVideoAdapter);
-        }
+        EventBus.getDefault().unregister(this);
     }
 }

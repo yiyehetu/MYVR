@@ -1,25 +1,18 @@
 package com.yaya.myvr.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yaya.myvr.R;
 import com.yaya.myvr.app.AppConst;
-import com.yaya.myvr.bean.AppEvent;
-import com.yaya.myvr.bean.CacheProgress;
 import com.yaya.myvr.dao.Task;
-import com.yaya.myvr.widget.VideoCacheTask;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +24,7 @@ import java.util.Map;
 
 public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.CacheHolder> {
     private static final String TAG = CacheVideoAdapter.class.getSimpleName();
+    public static final String PAYLOAD = "payload";
 
     private Context context;
     private List<Task> taskList;
@@ -57,18 +51,10 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
     public void onBindViewHolder(final CacheHolder holder, int position) {
         final Task task = taskList.get(position);
         holder.tvTitle.setText(task.title);
-//        holder.tvActor.setText("演员:" + favor.actor);
         holder.tvProfile.setText(task.profile);
 
         // 设置下载状态
-        map.put(task.videoId, holder);
-        holder.tvState.setTag(task.videoId);
-
-        String state = stateMap.get(task.videoId);
-        if (TextUtils.isEmpty(state)) {
-            state = AppConst.DOWNLOAD_STATUS.get(task.status) + task.progress + "%";
-            stateMap.put(task.videoId, state);
-        }
+        String state = AppConst.DOWNLOAD_STATUS.get(task.status) + task.progress + "%";
         holder.tvState.setText(state);
 
         Glide.with(context)
@@ -78,25 +64,74 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
                 .crossFade()
                 .into(holder.ivPic);
 
+        setListener(holder, task.status);
+
+//        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            //            private boolean isPause = false;
+//            @Override
+//            public void onClick(View v) {
+//                VideoActivity.start(context, AppConst.LOCAL_VIDEO, favor.m3u8, favor.format);
+
+                // 缓存文件路径
+//                String m3u8 = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
+//                        .append(File.separator)
+//                        .append(ApiConst.VIDEO_CACHE)
+//                        .append(File.separator)
+//                        .append(task.videoId)
+//                        .append(File.separator)
+//                        .append("new.m3u8")
+//                        .toString();
+//                VideoActivity.start(context, AppConst.LOCAL_VIDEO, m3u8, task.format);
+//                if(isPause){
+//                    Toast.makeText(context, "启动任务", Toast.LENGTH_SHORT).show();
+//                    VideoCacheTask.getInstance().start(task.videoId);
+//                    isPause = false;
+//                }else{
+//                    Toast.makeText(context, "暂停任务", Toast.LENGTH_SHORT).show();
+//                    VideoCacheTask.getInstance().pause(task.videoId);
+//                    isPause = true;
+//                }
+//            }
+//        });
+    }
+
+    // 局部刷新
+    @Override
+    public void onBindViewHolder(CacheHolder holder, int position, List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            // 设置下载状态
+            final Task task = taskList.get(position);
+            String state = AppConst.DOWNLOAD_STATUS.get(task.status) + task.progress + "%";
+            holder.tvState.setText(state);
+            setListener(holder, task.status);
+        } else {
+            onBindViewHolder(holder, position);
+        }
+    }
+
+    private void setListener(CacheHolder holder, final int status) {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                VideoActivity.start(context, AppConst.LOCAL_VIDEO, favor.m3u8, favor.format);
+                View alertView = LayoutInflater.from(context).inflate(R.layout.item_alert_cache, null, false);
+                new AlertDialog.Builder(context)
+                            .setView(alertView)
+                            .show();
 
-                if(isPause){
-                    Toast.makeText(context, "启动任务", Toast.LENGTH_SHORT).show();
-                    VideoCacheTask.getInstance().start(task.videoId);
-                    isPause = false;
-                }else{
-                    Toast.makeText(context, "暂停任务", Toast.LENGTH_SHORT).show();
-                    VideoCacheTask.getInstance().pause(task.videoId);
-                    isPause = true;
+                switch (status) {
+                    case AppConst.IDLE:
+
+                        break;
+                    case AppConst.DOWNLOADING:
+                        break;
+                    case AppConst.DOWNLOAD_PAUSE:
+                        break;
+                    case AppConst.DOWNLOADED:
+                        break;
                 }
             }
         });
     }
-
-    private boolean isPause = false;
 
     @Override
     public int getItemCount() {
@@ -115,37 +150,6 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
             super(itemView);
             this.itemView = itemView;
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(AppEvent event) {
-        CacheProgress data = (CacheProgress) event.getObj();
-        String videoId = data.getVideoId();
-        String state = "";
-
-        if ("download_pending".equals(event.getMark())) {
-            state = "下载中...0%";
-        } else if ("download_progress".equals(event.getMark())) {
-            int progress = data.getProgress();
-            if (progress == 100) {
-                state = "下载完成...100%";
-            } else {
-                state = "下载中..." + progress + "%";
-            }
-        } else if ("download_pause".equals(event.getMark())) {
-            int progress = data.getProgress();
-            state = "下载暂停..." + progress + "%";
-        }
-
-        stateMap.put(videoId, state);
-        CacheHolder cacheHolder = map.get(data.getVideoId());
-        if (cacheHolder == null) {
-            return;
-        }
-        if (videoId.equals(cacheHolder.tvState.getTag())) {
-            cacheHolder.tvState.setText(state);
-        }
-
     }
 
 }

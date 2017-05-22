@@ -2,11 +2,14 @@ package com.yaya.myvr.bean;
 
 /**
  * Created by admin on 2017/5/21.
+ *
+ * 缓存进度消息
  */
 
 public class CacheProgress {
     private String videoId;
     private int progress;
+    private int status;
 
     public CacheProgress() {
     }
@@ -18,6 +21,20 @@ public class CacheProgress {
     public CacheProgress(String videoId, int progress) {
         this.videoId = videoId;
         this.progress = progress;
+    }
+
+    public CacheProgress(String videoId, int progress, int status) {
+        this.videoId = videoId;
+        this.progress = progress;
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public String getVideoId() {
@@ -41,6 +58,7 @@ public class CacheProgress {
         return "CacheProgress{" +
                 "videoId='" + videoId + '\'' +
                 ", progress=" + progress +
+                ", status=" + status +
                 '}';
     }
 }

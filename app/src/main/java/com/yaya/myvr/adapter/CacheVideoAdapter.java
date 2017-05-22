@@ -53,6 +53,8 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
         holder.tvTitle.setText(task.title);
         holder.tvProfile.setText(task.profile);
 
+
+
         // 设置下载状态
         String state = AppConst.DOWNLOAD_STATUS.get(task.status) + task.progress + "%";
         holder.tvState.setText(state);

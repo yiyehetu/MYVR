@@ -1,4 +1,4 @@
-package com.yaya.myvr.widget;
+package com.yaya.myvr.widget.cache;
 
 import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloadListener;
@@ -98,6 +98,11 @@ public class VideoCacheTask {
             return;
         }
 
+        // 处于Idle状态自动下载
+        if(currTask.status != AppConst.IDLE){
+            return;
+        }
+
         // 缓存文件夹
         final String cacheDir = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
                 .append(File.separator)
@@ -109,6 +114,30 @@ public class VideoCacheTask {
         // 缓存路径
         final String path = cacheDir + "origin.m3u8";
         downloadM3u8(currTask.m3u8, path, cacheDir);
+
+    }
+
+    private void restartTask() {
+        currTask = getNextTask();
+        LogUtils.e(TAG, "currTask = " + currTask);
+        // 任务结束
+        if (currTask == null) {
+            isExist = false;
+            return;
+        }
+
+        // 缓存文件夹
+        final String cacheDir = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
+                .append(File.separator)
+                .append(ApiConst.VIDEO_CACHE)
+                .append(File.separator)
+                .append(currTask.videoId)
+                .append(File.separator)
+                .toString();
+        // 缓存路径
+        final String path = cacheDir + "origin.m3u8";
+        downloadM3u8(currTask.m3u8, path, cacheDir);
+
     }
 
     /**
@@ -138,9 +167,10 @@ public class VideoCacheTask {
 
             @Override
             protected void completed(BaseDownloadTask task) {
-                if (this != task.getListener()) {
+                if (this != task.getListener() || currTask == null) {
                     return;
                 }
+
                 LogUtils.e(TAG, "m3u8 completed...");
 
                 Integer progress = progressMap.get(currTask.videoId);
@@ -300,7 +330,7 @@ public class VideoCacheTask {
                 }
                 // reset
                 isPause = false;
-                LogUtils.e(TAG, "tag:" + task.getTag() + "_pending...");
+//                LogUtils.e(TAG, "tag:" + task.getTag() + "_pending...");
             }
 
             @Override
@@ -320,7 +350,7 @@ public class VideoCacheTask {
 
             @Override
             protected void completed(BaseDownloadTask task) {
-                if (this != task.getListener()) {
+                if (this != task.getListener() || currTask == null) {
                     return;
                 }
 
@@ -350,7 +380,7 @@ public class VideoCacheTask {
 
             @Override
             protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                if (this != task.getListener()) {
+                if (this != task.getListener() || currTask == null) {
                     return;
                 }
 
@@ -369,6 +399,7 @@ public class VideoCacheTask {
                 // 开启下一个任务
                 if (isStart) {
                     if (indexMap.get(videoId) != null) {
+                        // 更换索引
                         index = indexMap.get(videoId);
                     }
                     isStart = false;
@@ -444,7 +475,6 @@ public class VideoCacheTask {
                 index = indexMap.get(videoId);
                 startTask();
             }
-
         }
     }
 

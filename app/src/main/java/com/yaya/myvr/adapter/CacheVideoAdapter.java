@@ -6,17 +6,24 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.yaya.myvr.R;
+import com.yaya.myvr.activity.VideoActivity;
+import com.yaya.myvr.api.ApiConst;
 import com.yaya.myvr.app.AppConst;
+import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.dao.Task;
+import com.yaya.myvr.widget.cache.VideoCacheTask2;
 
-import java.util.HashMap;
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by admin on 2017/5/18.
@@ -28,8 +35,6 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
 
     private Context context;
     private List<Task> taskList;
-    private Map<String, CacheHolder> map = new HashMap<>();
-    private Map<String, String> stateMap = new HashMap<>();
 
     public CacheVideoAdapter(Context context, List<Task> taskList) {
         this.context = context;
@@ -54,7 +59,6 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
         holder.tvProfile.setText(task.profile);
 
 
-
         // 设置下载状态
         String state = AppConst.DOWNLOAD_STATUS.get(task.status) + task.progress + "%";
         holder.tvState.setText(state);
@@ -66,35 +70,7 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
                 .crossFade()
                 .into(holder.ivPic);
 
-        setListener(holder, task.status);
-
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            //            private boolean isPause = false;
-//            @Override
-//            public void onClick(View v) {
-//                VideoActivity.start(context, AppConst.LOCAL_VIDEO, favor.m3u8, favor.format);
-
-                // 缓存文件路径
-//                String m3u8 = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
-//                        .append(File.separator)
-//                        .append(ApiConst.VIDEO_CACHE)
-//                        .append(File.separator)
-//                        .append(task.videoId)
-//                        .append(File.separator)
-//                        .append("new.m3u8")
-//                        .toString();
-//                VideoActivity.start(context, AppConst.LOCAL_VIDEO, m3u8, task.format);
-//                if(isPause){
-//                    Toast.makeText(context, "启动任务", Toast.LENGTH_SHORT).show();
-//                    VideoCacheTask.getInstance().start(task.videoId);
-//                    isPause = false;
-//                }else{
-//                    Toast.makeText(context, "暂停任务", Toast.LENGTH_SHORT).show();
-//                    VideoCacheTask.getInstance().pause(task.videoId);
-//                    isPause = true;
-//                }
-//            }
-//        });
+        setListener(holder, task);
     }
 
     // 局部刷新
@@ -105,34 +81,192 @@ public class CacheVideoAdapter extends RecyclerView.Adapter<CacheVideoAdapter.Ca
             final Task task = taskList.get(position);
             String state = AppConst.DOWNLOAD_STATUS.get(task.status) + task.progress + "%";
             holder.tvState.setText(state);
-            setListener(holder, task.status);
+            setListener(holder, task);
         } else {
             onBindViewHolder(holder, position);
         }
     }
 
-    private void setListener(CacheHolder holder, final int status) {
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View alertView = LayoutInflater.from(context).inflate(R.layout.item_alert_cache, null, false);
-                new AlertDialog.Builder(context)
-                            .setView(alertView)
-                            .show();
 
-                switch (status) {
-                    case AppConst.IDLE:
+    class Listener implements View.OnClickListener {
+        private Task task;
 
-                        break;
-                    case AppConst.DOWNLOADING:
-                        break;
-                    case AppConst.DOWNLOAD_PAUSE:
-                        break;
-                    case AppConst.DOWNLOADED:
-                        break;
-                }
+        public Listener(Task task) {
+            this.task = task;
+        }
+
+        @Override
+        public void onClick(View v) {
+            final View alertView = LayoutInflater.from(context).inflate(R.layout.item_alert_cache, null, false);
+            Button btn1 = (Button) alertView.findViewById(R.id.btn_1);
+            Button btn2 = (Button) alertView.findViewById(R.id.btn_2);
+            Button btn3 = (Button) alertView.findViewById(R.id.btn_3);
+            final AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setView(alertView)
+                    .show();
+
+            switch (task.status) {
+                case AppConst.IDLE:
+                    setIdleState(task, dialog, btn1, btn2);
+                    break;
+                case AppConst.DOWNLOADING:
+                    setDownloadingState(task, dialog, btn1);
+                    break;
+                case AppConst.DOWNLOAD_PAUSE:
+                    setPauseState(task, dialog, btn1, btn2, btn3);
+                    break;
+                case AppConst.DOWNLOADED:
+                    setDownloadedState(task, dialog, btn1, btn2);
+                    break;
             }
-        });
+        }
+
+        private void setDownloadedState(final Task task, final AlertDialog dialog, Button btn1, Button btn2) {
+            btn1.setText("开始播放");
+            btn2.setVisibility(View.VISIBLE);
+            btn2.setText("删除缓存");
+
+            btn1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playVideo(task);
+                    dialog.dismiss();
+                }
+            });
+
+            btn2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteVideo(task);
+                    dialog.dismiss();
+                }
+            });
+        }
+
+        private void deleteVideo(Task task) {
+            // 本地处理
+            final String cacheDir = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
+                    .append(File.separator)
+                    .append(ApiConst.VIDEO_CACHE)
+                    .append(File.separator)
+                    .append(task.videoId)
+                    .toString();
+            File file = new File(cacheDir);
+            if (file.exists()) {
+                File[] files = file.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    files[i].delete();
+                }
+                // 删除文件夹
+                file.delete();
+            }
+            task.delete();
+            int index = taskList.indexOf(task);
+            taskList.remove(task);
+            notifyItemRangeRemoved(index, 1);
+            EventBus.getDefault().post(new AppEvent("update_cache", null));
+        }
+
+        private void playVideo(Task task) {
+            String m3u8 = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
+                    .append(File.separator)
+                    .append(ApiConst.VIDEO_CACHE)
+                    .append(File.separator)
+                    .append(task.videoId)
+                    .append(File.separator)
+                    .append("new.m3u8")
+                    .toString();
+            VideoActivity.start(context, AppConst.LOCAL_VIDEO, m3u8, task.format);
+        }
+
+        private void setPauseState(final Task task, final AlertDialog dialog, Button btn1, Button btn2, Button btn3) {
+            btn1.setText("立即下载");
+            btn2.setVisibility(View.VISIBLE);
+            btn2.setText("删除缓存");
+            btn3.setVisibility(View.VISIBLE);
+            btn3.setText("排队下载");
+
+            btn1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    VideoCacheTask2.getInstance().handStart(task.videoId);
+                    dialog.dismiss();
+                }
+            });
+
+            btn2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteVideo(task);
+                    dialog.dismiss();
+                }
+            });
+
+            btn3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addPendingTask(task);
+                    dialog.dismiss();
+                }
+            });
+        }
+
+
+
+        private void setDownloadingState(final Task task, final AlertDialog dialog, Button btn1) {
+            btn1.setText("暂停下载");
+
+            btn1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    VideoCacheTask2.getInstance().handPause(task.videoId);
+                    dialog.dismiss();
+                }
+            });
+        }
+
+        private void setIdleState(final Task task, final AlertDialog dialog, Button btn1, Button btn2) {
+            btn1.setText("立即下载");
+            btn2.setVisibility(View.VISIBLE);
+            btn2.setText("删除任务");
+
+            btn1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    VideoCacheTask2.getInstance().handStart(task.videoId);
+                    dialog.dismiss();
+                }
+            });
+
+            btn2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deletePendingTask(task);
+                    dialog.dismiss();
+                }
+            });
+        }
+
+        /**
+         * 添加待下载任务
+         * @param task
+         */
+        private void addPendingTask(Task task) {
+            VideoCacheTask2.getInstance().addPendingTask(task);
+        }
+
+        /**
+         * 删除待下载任务
+         * @param task
+         */
+        private void deletePendingTask(Task task) {
+            VideoCacheTask2.getInstance().removePendingTask(task.videoId);
+            deleteVideo(task);
+        }
+    }
+
+    private void setListener(CacheHolder holder, Task task) {
+        holder.itemView.setOnClickListener(new Listener(task));
     }
 
     @Override

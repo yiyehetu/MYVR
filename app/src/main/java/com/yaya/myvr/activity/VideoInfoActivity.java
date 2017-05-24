@@ -36,7 +36,7 @@ import com.yaya.myvr.dao.Task_Table;
 import com.yaya.myvr.util.ConvertUtils;
 import com.yaya.myvr.util.LogUtils;
 import com.yaya.myvr.widget.RecyclerViewDivider;
-import com.yaya.myvr.widget.VideoCacheTask;
+import com.yaya.myvr.widget.cache.VideoCacheTask2;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -294,7 +294,7 @@ public class VideoInfoActivity extends BaseActivity {
             task.progress = 0;
             task.status = AppConst.IDLE;
             task.save();
-            VideoCacheTask.getInstance().addTask(task);
+            VideoCacheTask2.getInstance().addTask(task);
             EventBus.getDefault().post(new AppEvent("update_cache", null));
             Toast.makeText(VideoInfoActivity.this, "添加缓存成功", Toast.LENGTH_SHORT).show();
         }

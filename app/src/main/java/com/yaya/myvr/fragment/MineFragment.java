@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yaya.myvr.R;
 import com.yaya.myvr.activity.MineActivity;
@@ -21,6 +22,9 @@ import com.yaya.myvr.util.LogUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -54,7 +58,8 @@ public class MineFragment extends BaseFragment {
     RelativeLayout rlAbout;
 
     private static final String TAG = MineFragment.class.getSimpleName();
-    private MediaLoadTask loadTask;
+    private MediaLocalTask localTask;
+    private MediaCacheTask cacheTask;
 
     @Override
     protected int getLayoutId() {
@@ -78,7 +83,6 @@ public class MineFragment extends BaseFragment {
         LogUtils.e("MineFragment init Data...");
         startTask();
         updateFavor();
-        updateCache();
     }
 
     @Override
@@ -93,26 +97,26 @@ public class MineFragment extends BaseFragment {
     }
 
     private void startTask() {
-        clearTask();
-
-        loadTask = new MediaLoadTask();
-        loadTask.execute();
+        localTask = new MediaLocalTask();
+        localTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        cacheTask = new MediaCacheTask();
+        cacheTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    private void clearTask() {
-        if (loadTask != null && !loadTask.isCancelled()) {
-            loadTask.cancel(true);
-            loadTask = null;
+    private void clearTask(AsyncTask task) {
+        if (task != null && !task.isCancelled()) {
+            task.cancel(true);
+            task = null;
         }
     }
 
 
     // 检索本地视频
-    class MediaLoadTask extends AsyncTask<Void, Integer, Integer> {
+    class MediaLocalTask extends AsyncTask<Void, Integer, Integer> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            tvLocal.setText("");
+            tvLocal.setText("0");
         }
 
         @Override
@@ -126,6 +130,26 @@ public class MineFragment extends BaseFragment {
             tvLocal.setText(integer + "");
         }
     }
+
+    // 检索本地缓存
+    class MediaCacheTask extends AsyncTask<Void, Integer, Integer>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            tvCache.setText("0");
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            return getCacheSize();
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            tvCache.setText(integer + "");
+        }
+    }
+
 
     private int getLoadMedia() {
         int count = 0;
@@ -169,7 +193,7 @@ public class MineFragment extends BaseFragment {
     }
 
     /**
-     * 更新收藏
+     * 更新缓存
      */
     private void updateCache() {
         int count = SQLite.select()
@@ -177,6 +201,34 @@ public class MineFragment extends BaseFragment {
                 .queryList()
                 .size();
         tvCache.setText(count + "");
+    }
+
+    /**
+     * 查询缓存
+     */
+    private int getCacheSize(){
+        int sum = 0;
+        List<Task> taskList = SQLite.select()
+                .from(Task.class)
+                .queryList();
+
+        // 本地验证
+        for(int i = 0; i < taskList.size(); i++) {
+            final String cacheDir = new StringBuilder().append(FileDownloadUtils.getDefaultSaveRootPath())
+                    .append(File.separator)
+                    .append(ApiConst.VIDEO_CACHE)
+                    .append(File.separator)
+                    .append(taskList.get(i).videoId)
+                    .toString();
+            File file = new File(cacheDir);
+            if(file.exists()){
+                sum++;
+            }else{
+                taskList.get(i).delete();
+            }
+        }
+
+        return sum;
     }
 
     @OnClick(R.id.ll_local)
@@ -211,7 +263,8 @@ public class MineFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        clearTask();
+        clearTask(localTask);
+        clearTask(cacheTask);
         EventBus.getDefault().unregister(this);
     }
 }

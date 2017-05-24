@@ -15,7 +15,7 @@ import com.yaya.myvr.bean.AppEvent;
 import com.yaya.myvr.bean.CacheProgress;
 import com.yaya.myvr.dao.Task;
 import com.yaya.myvr.util.LogUtils;
-import com.yaya.myvr.widget.VideoCacheTask;
+import com.yaya.myvr.widget.cache.VideoCacheTask2;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -82,7 +82,7 @@ public class CacheVideoFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(AppEvent event) {
         String mark = event.getMark();
-        if (VideoCacheTask.PROGRESS.equals(mark) || VideoCacheTask.PAUSE.equals(mark) || VideoCacheTask.START.equals(mark) || VideoCacheTask.COMPLETED.equals(mark)) {
+        if (VideoCacheTask2.PROGRESS.equals(mark) || VideoCacheTask2.PAUSE.equals(mark) || VideoCacheTask2.START.equals(mark) || VideoCacheTask2.COMPLETED.equals(mark) || VideoCacheTask2.IDLE.equals(mark)) {
             CacheProgress data = (CacheProgress) event.getObj();
             String videoId = data.getVideoId();
             int progress = data.getProgress();

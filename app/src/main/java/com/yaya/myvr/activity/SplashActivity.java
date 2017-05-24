@@ -59,10 +59,10 @@ public class SplashActivity extends BaseActivity {
 
         List<Task> tasks = SQLite.select()
                 .from(Task.class)
-                .where(Task_Table.status.eq(AppConst.DOWNLOADING))
+                .where(Task_Table.status.in(AppConst.IDLE, AppConst.DOWNLOADING))
                 .queryList();
         if (tasks != null && tasks.size() > 0) {
-            for(int i = 0; i < tasks.size(); i++) {
+            for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
                 task.status = AppConst.DOWNLOAD_PAUSE;
                 task.update();

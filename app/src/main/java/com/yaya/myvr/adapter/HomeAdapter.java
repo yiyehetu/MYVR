@@ -205,7 +205,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     // 执行定时任务
     public void performTask() {
-        int postion = (int) (currPostion + 1);
+        int postion = currPostion + 1;
         if (headerHolder == null || headerHolder.vpHeader == null) {
             return;
         }

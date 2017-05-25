@@ -41,18 +41,10 @@ public class VideoCacheTask2 {
     // 手动标记
     private boolean isHandStart = false;
     private boolean isHandPause = false;
-    // 任务集合
-    private List<Task> taskList = new ArrayList<>();
-    // 当前任务索引
-//    private int index = 0;
-    // 当前任务
-//    private Task currTask;
-    // 监听集合
+
     private Map<String, FileDownloadListener> allFileListeners = new HashMap<>();
-    // 索引集合
-    private Map<String, Integer> indexMap = new HashMap<>();
     // 进度集合
-    private Map<String, Integer> progressMap = new HashMap<>();
+//    private Map<String, Integer> progressMap = new HashMap<>();
 
     public static final String START = "start";
     public static final String PROGRESS = "progress";
@@ -159,7 +151,7 @@ public class VideoCacheTask2 {
                 }
 
                 LogUtils.e(TAG, "m3u8 completed...");
-                progressMap.put(currTask.videoId, currTask.progress);
+//                progressMap.put(currTask.videoId, currTask.progress);
                 currTask.status = AppConst.DOWNLOADING;
                 currTask.update();
                 EventBus.getDefault().post(new AppEvent(START, new CacheProgress(currTask.videoId, currTask.progress, AppConst.DOWNLOADING)));
@@ -337,11 +329,19 @@ public class VideoCacheTask2 {
                 LogUtils.e(TAG, "tag:" + task.getTag() + "_completed..." + "progress = " + currProgress);
 
                 // 数据库更新
-                currTask.progress = currProgress;
-                currTask.update();
+//                currTask.progress = currProgress;
+//                currTask.update();
+//
+//                if (progressMap.get(currTask.videoId) < currProgress) {
+//                    progressMap.put(currTask.videoId, currProgress);
+//                    // 发送更新
+//                    EventBus.getDefault().post(new AppEvent(PROGRESS, new CacheProgress(currTask.videoId, currProgress, AppConst.DOWNLOADING)));
+//                }
 
-                if (progressMap.get(currTask.videoId) < currProgress) {
-                    progressMap.put(currTask.videoId, currProgress);
+                if(currTask.progress < currProgress){
+                    // 数据库更新
+                    currTask.progress = currProgress;
+                    currTask.update();
                     // 发送更新
                     EventBus.getDefault().post(new AppEvent(PROGRESS, new CacheProgress(currTask.videoId, currProgress, AppConst.DOWNLOADING)));
                 }

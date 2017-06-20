@@ -2,10 +2,12 @@ package com.yaya.myvr.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.util.SparseArray;
 import android.widget.TextView;
 
 import com.yaya.myvr.R;
 import com.yaya.myvr.base.BaseActivity;
+import com.yaya.myvr.base.BaseFragment;
 import com.yaya.myvr.fragment.BrandFragment;
 import com.yaya.myvr.fragment.FindFragment;
 import com.yaya.myvr.fragment.HomeFragment;
@@ -26,12 +28,8 @@ public class MainActivity extends BaseActivity {
     TextView tvMine;
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private HomeFragment homeFragment;
-    private BrandFragment brandFragment;
-    private FindFragment findFragment;
-    private MineFragment mineFragment;
-
-    private int currPositon = -1;
+    private SparseArray<BaseFragment> fragments = new SparseArray<>();
+    private int currId = -1;
 
     @Override
     protected int getLayoutId() {
@@ -57,68 +55,46 @@ public class MainActivity extends BaseActivity {
      * @param id
      */
     private void selectTab(int id) {
+        if (id == currId) {
+            return;
+        }
         // 底部处理
         setBottomNavSelected(id);
         // Fragment处理
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        hideFragments(transaction);
-        switch (id) {
-            case R.id.tv_home:
-                if (homeFragment == null) {
-                    homeFragment = new HomeFragment();
-                    transaction.add(R.id.fl_main, homeFragment);
-                } else {
-                    transaction.show(homeFragment);
-                }
-                break;
-            case R.id.tv_brand:
-                if (brandFragment == null) {
-                    brandFragment = new BrandFragment();
-                    transaction.add(R.id.fl_main, brandFragment);
-                } else {
-                    transaction.show(brandFragment);
-                }
-                break;
-            case R.id.tv_find:
-                if (findFragment == null) {
-                    findFragment = new FindFragment();
-                    transaction.add(R.id.fl_main, findFragment);
-                } else {
-                    transaction.show(findFragment);
-                }
-                break;
-            case R.id.tv_mine:
-                if (mineFragment == null) {
-                    mineFragment = new MineFragment();
-                    transaction.add(R.id.fl_main, mineFragment);
-                } else {
-                    transaction.show(mineFragment);
-                }
-                break;
+
+        // 隐藏上一个Fragment
+        for (int i = 0; i < fragments.size(); i++) {
+            int key = fragments.keyAt(i);
+            if (key == currId) {
+                transaction.hide(fragments.valueAt(i));
+            }
         }
+        // 显示目的Fragment
+        if (fragments.get(id) == null) {
+            switch (id) {
+                case R.id.tv_home:
+                    fragments.put(id, new HomeFragment());
+                    break;
+                case R.id.tv_brand:
+                    fragments.put(id, new BrandFragment());
+                    break;
+                case R.id.tv_find:
+                    fragments.put(id, new FindFragment());
+                    break;
+                case R.id.tv_mine:
+                    fragments.put(id, new MineFragment());
+                    break;
+            }
+            transaction.add(R.id.fl_main, fragments.get(id));
+        } else {
+            transaction.show(fragments.get(id));
+        }
+
         transaction.commit();
-        currPositon = id;
+        currId = id;
     }
 
-    /**
-     * 隐藏所有fragment
-     *
-     * @param transaction
-     */
-    private void hideFragments(FragmentTransaction transaction) {
-        if (homeFragment != null) {
-            transaction.hide(homeFragment);
-        }
-        if (brandFragment != null) {
-            transaction.hide(brandFragment);
-        }
-        if (findFragment != null) {
-            transaction.hide(findFragment);
-        }
-        if (mineFragment != null) {
-            transaction.hide(mineFragment);
-        }
-    }
 
     /**
      * 设置底部导航栏选中状态
@@ -177,8 +153,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
 //        LogUtils.e(TAG, "onRestoreInstanceState...");
-        currPositon = savedInstanceState.getInt("position");
-        selectTab(currPositon);
+        currId = savedInstanceState.getInt("position");
+        selectTab(currId);
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -186,7 +162,7 @@ public class MainActivity extends BaseActivity {
     protected void onSaveInstanceState(Bundle outState) {
         LogUtils.e(TAG, "onSaveInstanceState...");
         // 记录当前的position
-        outState.putInt("position", currPositon);
+        outState.putInt("position", currId);
     }
 
 }

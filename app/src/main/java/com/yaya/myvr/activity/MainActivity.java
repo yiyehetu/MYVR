@@ -153,8 +153,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
 //        LogUtils.e(TAG, "onRestoreInstanceState...");
-        currId = savedInstanceState.getInt("position");
-        selectTab(currId);
+        int position = savedInstanceState.getInt("position");
+        selectTab(position);
         super.onRestoreInstanceState(savedInstanceState);
     }
 
